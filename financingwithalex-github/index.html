@@ -190,11 +190,6 @@ section[id]{scroll-margin-top:68px}
 .footer-col a:hover{color:var(--gold)}
 .footer-legal{padding-top:24px;font-size:12.5px;color:rgba(245,243,238,.42);line-height:1.7}
 .footer-legal b{color:rgba(245,243,238,.6);font-weight:600}
-.eho{display:inline-flex;align-items:center;gap:7px;color:rgba(245,243,238,.6);font-weight:600}
-.eho-mark{width:15px;height:14px;flex-shrink:0;display:inline-block;
-  background:currentColor;
-  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'><path d='M12 1L1 9h3v12h16V9h3L12 1zm-4 12h8v1.6H8V13zm0 3h8v1.6H8V16z' fill='black'/></svg>") no-repeat center/contain;
-  mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'><path d='M12 1L1 9h3v12h16V9h3L12 1zm-4 12h8v1.6H8V13zm0 3h8v1.6H8V16z' fill='black'/></svg>") no-repeat center/contain;}
 .footer-cols{display:flex;gap:60px;flex-wrap:wrap}
 @media(max-width:640px){.footer-cols{gap:36px}}
 
@@ -245,11 +240,6 @@ section[id]{scroll-margin-top:68px}
 .fcta:disabled{opacity:.5;cursor:default}
 .ferr{display:none;background:rgba(240,168,121,.14);border:1px solid rgba(240,168,121,.4);color:#F0B98A;font-size:13.5px;padding:11px 13px;border-radius:11px;margin-top:12px}
 .ftrust{text-align:center;font-size:12px;color:var(--tx-inv-soft);margin-top:16px;line-height:1.5}
-.ftrust a{color:var(--tx-inv-soft);text-decoration:underline}
-.fconsent{display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.45;color:var(--tx-inv-soft);
-  background:rgba(255,255,255,.04);border:1px solid var(--line-inv);border-radius:10px;padding:11px 13px;margin-top:10px;cursor:pointer}
-.fconsent input{width:18px;height:18px;margin-top:1px;accent-color:#fff;flex-shrink:0;cursor:pointer}
-.fconsent a{color:#fff;text-decoration:underline}
 .fdone{text-align:center;padding:20px 0 6px}
 .fcheck{width:66px;height:66px;border-radius:99px;margin:0 auto 20px;background:rgba(143,227,176,.16);display:grid;place-items:center}
 .fcheck::after{content:"";width:17px;height:31px;border:solid #8FE3B0;border-width:0 4px 4px 0;transform:rotate(45deg);margin-top:-7px}
@@ -449,19 +439,12 @@ section[id]{scroll-margin-top:68px}
           <a href="tel:+19496494469">(949) 649-4469</a>
           <a href="mailto:adhose@westcapitallending.com">adhose@westcapitallending.com</a>
         </div>
-        <div class="footer-col">
-          <h4>Legal</h4>
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Use</a>
-          <a href="/sms-terms">SMS Terms</a>
-          <a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener">NMLS Consumer Access</a>
-        </div>
       </div>
     </div>
     <div class="footer-legal">
       <b>Alexandre D'Hose</b> · Branch Manager · West Capital Lending, Inc. · 17911 Von Karman Ave Suite 400, Irvine, CA 92614<br>
       NMLS #2705406 · Company NMLS #1566096 · Cal. DRE #02022356 · Licensed in AL, AZ, CA, CT, FL, HI, ID, MD, MI, NE, ND, OH, OK, OR, PA, TN, TX, VA, WA<br><br>
-      <span class="eho"><span class="eho-mark" aria-hidden="true"></span> Equal Housing Opportunity</span> · This is not a commitment to lend. All loans subject to credit approval, income verification, and property valuation. Rates and terms subject to change.
+      This is not a commitment to lend. All loans subject to credit approval, income verification, and property valuation. Rates and terms subject to change. Equal Housing Opportunity.
     </div>
   </div>
 </footer>
@@ -588,11 +571,9 @@ function frenderContact(s){
     + '<div class="ffield"><label>Email</label><input id="ff_email" type="email" placeholder="jane@email.com" inputmode="email"></div>'
     + '<div class="ffield"><label>Phone number</label><input id="ff_phone" type="tel" placeholder="(555) 000-0000" inputmode="tel"></div>'
     + '<div class="ffield"><label>Property address <span class="fopt-tag">optional, for a faster response</span></label><input id="ff_addr" type="text" placeholder="123 Main St, City, State"></div>'
-    + '<label class="fconsent"><input type="checkbox" id="ff_sms_loan"><span>I agree to receive text messages from West Capital Lending, Inc. (Financing with Alex) about my loan inquiry, including updates and appointment reminders. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of any loan or purchase. <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> | <a href="/sms-terms" target="_blank" rel="noopener">SMS Terms</a></span></label>'
-    + '<label class="fconsent"><input type="checkbox" id="ff_sms_mkt"><span>I also agree to receive marketing text messages from West Capital Lending, Inc. about loan programs, rates and offers, which may be sent using automated technology.</span></label>'
     + '<div class="fnav"><button class="fback" id="fback">Back</button><button class="fcta" id="fsubmit">See my options</button></div>'
     + '<div class="ferr" id="ferr"></div>'
-    + '<div class="ftrust">By submitting, you agree to our <a href="/terms" target="_blank" rel="noopener">Terms of Use</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>. This is not a commitment to lend. Alexandre D\'Hose, NMLS #2705406 · West Capital Lending, Inc., NMLS #1566096 · Equal Housing Opportunity.</div>'
+    + '<div class="ftrust">Your information is secure and never sold. Alexandre D\'Hose · NMLS #2705406 · West Capital Lending, Inc.</div>'
     + '</div>';
   document.getElementById('fback').onclick=fprev;
   document.getElementById('fsubmit').onclick=fsubmit;
@@ -615,21 +596,11 @@ async function fsubmit(){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fshowErr("Please enter a valid email.");
   if(phone.replace(/[^\d]/g,'').length<7) return fshowErr("Please enter a valid phone number.");
   fanswers.full_name=name; fanswers.email=email; fanswers.phone=phone; fanswers.property_address=addr;
-  const smsLoan = document.getElementById('ff_sms_loan').checked;
-  const smsMkt = document.getElementById('ff_sms_mkt').checked;
   const btn=document.getElementById('fsubmit'); btn.disabled=true; btn.textContent="Sending…";
-  const params = new URLSearchParams(window.location.search);
-  const payload={ form_name:"quiz",
-    looking_for:fanswers.looking_for||null, loan_purpose:fanswers.loan_purpose||null,
+  const payload={ looking_for:fanswers.looking_for||null, loan_purpose:fanswers.loan_purpose||null,
     occupancy:fanswers.occupancy||null, property_type:fanswers.property_type||null,
     loan_amount:fanswers.loan_amount||null, credit_score:fanswers.credit_score||null,
-    full_name:name, email:email, phone:phone, property_address:addr||null,
-    sms_consent_loan:smsLoan, sms_consent_marketing:smsMkt, softpull_consent:false,
-    consent_text_version:"2026-09-v1",
-    consent_timestamp:new Date().toISOString(),
-    page_url:window.location.href, user_agent:navigator.userAgent,
-    utm_source:params.get('utm_source')||null, utm_medium:params.get('utm_medium')||null,
-    utm_campaign:params.get('utm_campaign')||null, utm_content:params.get('utm_content')||null };
+    full_name:name, email:email, phone:phone, property_address:addr||null };
   try { if(_sb){ await _sb.from('leads').insert(payload); } } catch(e){ console.error(e); }
   try { if(GHL_WEBHOOK_URL){ await fetch(GHL_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}); } } catch(e){ console.error(e); }
   fdone();
