@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HELOC Application | Financing with Alex</title>
+<meta name="description" content="Tap your home equity with a HELOC. West Capital Lending, Inc. Licensed in 19 states.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --navy:#0B1B3A;--navy-2:#12244A;--navy-3:#1B3160;
+  --white:#fff;--paper:#EEF1F6;
+  --tx:#0B1B3A;--tx-soft:#4A5570;--tx-inv:#F4F6FA;--tx-inv-soft:rgba(244,246,250,.62);
+  --fbd:#D5DCE8;--fbg:#fff;--accent:#2E4A82;--ok:#1E7A4D;--req:#B23B3B;--line-inv:rgba(244,246,250,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--tx);line-height:1.5;
+  -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100dvh}
+h1,h2{font-family:'Bricolage Grotesque',sans-serif;font-weight:700;letter-spacing:-.02em}
+a{color:var(--accent)}
+
+.top{background:var(--navy);color:var(--tx-inv);padding:18px 22px 16px}
+.top-in{max-width:600px;margin:0 auto}
+.top-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.brand{font-family:'Bricolage Grotesque';font-weight:700;font-size:15px}.brand .g{color:#fff}
+.badge{font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--tx-inv-soft);background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.2);border-radius:99px;padding:6px 12px;white-space:nowrap}
+.pbar-row{display:flex;align-items:center;gap:12px}
+.pbar{flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
+.pbar-fill{height:100%;width:0;border-radius:99px;background:#fff;transition:width .4s cubic-bezier(.22,1,.36,1)}
+.pstep{font-size:12px;color:var(--tx-inv-soft);white-space:nowrap}
+
+.stage{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:22px}
+.card{width:100%;max-width:600px}
+.slide{display:none}.slide.active{display:block;animation:in .35s cubic-bezier(.22,1,.36,1)}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:8px}
+.q{font-size:23px;line-height:1.2;margin-bottom:4px;color:var(--navy)}
+.qs{color:var(--tx-soft);font-size:14px;margin-bottom:20px}
+
+.f{margin-bottom:15px}
+.f label{display:block;font-size:12px;font-weight:600;color:var(--tx-soft);text-transform:uppercase;letter-spacing:.03em;margin-bottom:7px}
+.f input,.f select{width:100%;padding:13px 14px;border-radius:10px;border:1px solid var(--fbd);background:var(--fbg);
+  color:var(--tx);font-family:inherit;font-size:16px;outline:none;transition:border-color .16s,box-shadow .16s}
+.f input:focus,.f select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(46,74,130,.12)}
+.f input::placeholder{color:#9AA4BC}
+.f .opt{font-weight:400;text-transform:none;letter-spacing:0;color:#9AA4BC}
+.money{position:relative}.money::before{content:"$";position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--tx-soft)}
+.money input{padding-left:26px}
+.btns{display:flex;flex-wrap:wrap;gap:9px}
+.optbtn{flex:1 1 auto;min-width:calc(50% - 5px);padding:14px 14px;border-radius:10px;border:1px solid var(--fbd);
+  background:var(--fbg);color:var(--tx);font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;transition:all .14s;text-align:center}
+.optbtn:hover{border-color:var(--accent)}
+.optbtn.sel{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:600}
+.optbtn.full{min-width:100%}
+
+.consent{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;line-height:1.5;color:var(--tx-soft);
+  background:var(--paper);border:1px solid var(--fbd);border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer}
+.consent input{width:19px;height:19px;margin-top:1px;accent-color:var(--navy);flex-shrink:0;cursor:pointer}
+.consent a{color:var(--accent);text-decoration:underline}
+.state-warn{display:none;background:rgba(178,59,59,.08);border:1px solid rgba(178,59,59,.3);color:var(--req);font-size:13px;padding:10px 13px;border-radius:9px;margin-top:8px;line-height:1.45}
+
+.nav{display:flex;gap:12px;align-items:center;margin-top:20px}
+.back{background:none;border:none;color:var(--tx-soft);font-family:inherit;font-size:14.5px;cursor:pointer;padding:12px 6px}
+.back:hover{color:var(--navy)}
+.cta{flex:1;padding:15px;border-radius:11px;border:none;font-family:inherit;font-size:16px;font-weight:700;background:var(--navy);color:#fff;cursor:pointer;transition:background .16s}
+.cta:hover{background:var(--navy-3)}.cta:disabled{opacity:.55;cursor:default}
+.err{display:none;background:rgba(178,59,59,.08);border:1px solid rgba(178,59,59,.32);color:var(--req);font-size:13.5px;padding:11px 14px;border-radius:10px;margin-top:12px}
+.smallprint{font-size:11.5px;color:var(--tx-soft);text-align:center;margin-top:14px;line-height:1.6}
+.smallprint a{color:var(--accent)}
+
+.done{text-align:center;padding:30px 6px}
+.done .big{width:72px;height:72px;border-radius:50%;background:rgba(30,122,77,.12);margin:0 auto 20px;display:grid;place-items:center}
+.done .big::after{content:"";width:18px;height:34px;border:solid var(--ok);border-width:0 5px 5px 0;transform:rotate(45deg);margin-top:-7px}
+.done h2{font-size:24px;margin-bottom:12px}.done p{color:var(--tx-soft);font-size:16px;line-height:1.6;max-width:44ch;margin:0 auto}
+
+.foot{text-align:center;padding:14px 22px 24px;font-size:11.5px;color:var(--tx-soft);line-height:1.7}
+.foot a{color:var(--accent)}
+.eho{display:inline-flex;align-items:center;gap:6px}
+.eho-mark{width:13px;height:12px;background:currentColor;display:inline-block;
+  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'><path d='M12 1L1 9h3v12h16V9h3L12 1zm-4 12h8v1.6H8V13zm0 3h8v1.6H8V16z' fill='black'/></svg>") no-repeat center/contain;
+  mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'><path d='M12 1L1 9h3v12h16V9h3L12 1zm-4 12h8v1.6H8V13zm0 3h8v1.6H8V16z' fill='black'/></svg>") no-repeat center/contain;}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-in">
+    <div class="top-row">
+      <div class="brand">Financing<span class="g">WithAlex</span></div>
+      <div class="badge">HELOC</div>
+    </div>
+    <div class="pbar-row"><div class="pbar"><div class="pbar-fill" id="pbarFill"></div></div><div class="pstep" id="pstep">Step 1 of 4</div></div>
+  </div>
+</div>
+
+<div class="stage"><div class="card" id="card"></div></div>
+
+<div class="foot">
+  <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a> · <a href="/sms-terms">SMS Terms</a> · <a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener">NMLS Consumer Access</a><br><br>
+  <span class="eho"><span class="eho-mark"></span> Equal Housing Opportunity</span> · West Capital Lending, Inc., NMLS #1566096
+</div>
+
+<script>
+const SUPABASE_URL="https://rmtdzrwresfxbntzfnym.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtdGR6cndyZXNmeGJudHpmbnltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMTUzMTgsImV4cCI6MjEwMjc5MTMxOH0.DetYrwT5zX-ajsuAx_hHH-Z6cK_yLaHulH01avLB2k";
+const GHL_WEBHOOK_URL="";
+const BOOKING_URL="";
+const _sb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY):null;
+const LICENSED=["AL","AZ","CA","CT","FL","HI","ID","MD","MI","NE","ND","OH","OK","OR","PA","TN","TX","VA","WA"];
+const STATE_NAMES={AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",CO:"Colorado",CT:"Connecticut",DE:"Delaware",FL:"Florida",GA:"Georgia",HI:"Hawaii",ID:"Idaho",IL:"Illinois",IN:"Indiana",IA:"Iowa",KS:"Kansas",KY:"Kentucky",LA:"Louisiana",ME:"Maine",MD:"Maryland",MA:"Massachusetts",MI:"Michigan",MN:"Minnesota",MS:"Mississippi",MO:"Missouri",MT:"Montana",NE:"Nebraska",NV:"Nevada",NH:"New Hampshire",NJ:"New Jersey",NM:"New Mexico",NY:"New York",NC:"North Carolina",ND:"North Dakota",OH:"Ohio",OK:"Oklahoma",OR:"Oregon",PA:"Pennsylvania",RI:"Rhode Island",SC:"South Carolina",SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming"};
+
+const A={}; // answers
+let stateUnlicensed=false;
+
+// STEPS: each step = array of fields. type: text/money/select/buttons + key/label/opts
+const STEPS=[
+ {kicker:"Your home", title:"Tell us about your home", sub:"The property you'd borrow against.",
+  fields:[
+   {k:"property_address",label:"Property address",type:"text",ph:"123 Main St, City, State ZIP",auto:"street-address",req:true,state:true},
+   {k:"occupancy",label:"How do you use this property?",type:"buttons",opts:["Primary home","Second home","Investment / rental"],req:true},
+   {k:"property_type",label:"Property type",type:"buttons",opts:["Single family","Condo / townhome","2–4 units","Manufactured","Other"],req:true},
+   {k:"home_value",label:"What's it worth today, roughly?",type:"money",req:true},
+   {k:"first_mortgage_balance",label:"What do you owe on your first mortgage? ($0 if paid off)",type:"money",req:true},
+   {k:"first_mortgage_rate",label:"Your first mortgage rate, roughly?",type:"buttons",opts:["Below 4%","4–5.99%","6–7.99%","8%+","Not sure","No mortgage"],req:true},
+   {k:"other_liens",label:"Any other loans on the home (existing HELOC, second mortgage)?",type:"buttons",opts:["Yes","No"],req:true},
+   {k:"other_liens_balance",label:"Balance owed on those?",type:"money",showIf:{k:"other_liens",v:"Yes"}},
+  ]},
+ {kicker:"What you need", title:"What you're looking for", sub:"How much and what for.",
+  fields:[
+   {k:"heloc_amount",label:"How much do you want to access?",type:"money",req:true},
+   {k:"heloc_purpose",label:"What's it for?",type:"buttons",opts:["Home improvements","Pay off debt","Buy another property","Business","Emergency fund","Other"],req:true},
+   {k:"draw_preference",label:"Do you prefer…?",type:"buttons",opts:["A line of credit I draw as needed","One lump sum at a fixed rate","Not sure"],req:true},
+   {k:"timeline",label:"How soon do you need the funds?",type:"buttons",opts:["ASAP","Within 30 days","1–3 months","Just exploring"],req:true},
+  ]},
+ {kicker:"About you", title:"A bit about you", sub:"This helps size the right program.",
+  fields:[
+   {k:"credit_score",label:"Estimated credit score?",type:"buttons",opts:["760+","720–759","680–719","640–679","600–639","Below 600","Not sure"],req:true},
+   {k:"income_type",label:"How do you earn income?",type:"buttons",opts:["W-2 employee","Self-employed","Retired","Rental income","Other"],req:true},
+   {k:"household_income",label:"Annual household income?",type:"buttons",opts:["Under $75K","$75–150K","$150–250K","$250K+"],req:true},
+   {k:"derogatory",label:"Any bankruptcy, foreclosure or short sale in the last 4 years?",type:"buttons",opts:["No","Yes"],req:true},
+   {k:"co_borrower",label:"Will anyone apply with you?",type:"buttons",opts:["Just me","With a spouse/partner","With someone else"],req:true},
+  ]},
+ {kicker:"Where to send your options", title:"Where should Alex send your options?", sub:"No obligation. Your info is used only to prepare your options.",
+  contact:true},
+];
+const TOTAL=STEPS.length;
+let step=0;
+
+function esc(s){return (s||"").replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function fmtMoney(v){v=(v||"").replace(/[^\d]/g,'');return v?Number(v).toLocaleString('en-US'):"";}
+
+function fieldHTML(f){
+  if(f.showIf && A[f.showIf.k]!==f.showIf.v) return "";
+  let inner="";
+  if(f.type==="text") inner='<input id="fld_'+f.k+'" type="text" placeholder="'+(f.ph||"")+'"'+(f.auto?' autocomplete="'+f.auto+'"':'')+' value="'+esc(A[f.k]||"")+'">';
+  else if(f.type==="money") inner='<div class="money"><input id="fld_'+f.k+'" type="text" inputmode="numeric" placeholder="0" value="'+esc(A[f.k]||"")+'"></div>';
+  else if(f.type==="buttons") inner='<div class="btns" data-key="'+f.k+'">'+f.opts.map(o=>'<button type="button" class="optbtn'+(f.opts.length%2?' ':'')+(A[f.k]===o?' sel':'')+'" data-v="'+esc(o)+'">'+o+'</button>').join("")+'</div>';
+  let html='<div class="f" data-field="'+f.k+'"><label>'+f.label+'</label>'+inner+'</div>';
+  if(f.state) html+='<div class="state-warn" id="stateWarn"></div>';
+  return html;
+}
+
+function render(){
+  const s=STEPS[step];
+  document.getElementById('pbarFill').style.width=((step+1)/TOTAL*100)+"%";
+  document.getElementById('pstep').textContent="Step "+(step+1)+" of "+TOTAL;
+  const card=document.getElementById('card');
+  if(s.contact){ renderContact(s); return; }
+  card.innerHTML='<div class="slide active"><div class="kicker">'+s.kicker+'</div><h2 class="q">'+s.title+'</h2>'
+    +'<div class="qs">'+s.sub+'</div>'
+    + s.fields.map(fieldHTML).join("")
+    + '<div class="nav">'+(step>0?'<button class="back" id="back">Back</button>':'')+'<button class="cta" id="next">Continue</button></div>'
+    + '<div class="err" id="err"></div></div>';
+  wire(s);
+  window.scrollTo(0,0);
+}
+
+function wire(s){
+  document.querySelectorAll('.btns').forEach(g=>{
+    g.querySelectorAll('.optbtn').forEach(btn=>btn.onclick=()=>{
+      g.querySelectorAll('.optbtn').forEach(x=>x.classList.remove('sel'));
+      btn.classList.add('sel'); A[g.dataset.key]=btn.dataset.v;
+      // re-render if this toggles a conditional field (save text fields first)
+      if(g.dataset.key==="other_liens"){ saveStep(); render(); }
+    });
+  });
+  document.querySelectorAll('.money input').forEach(inp=>inp.addEventListener('input',()=>{inp.value=fmtMoney(inp.value);}));
+  const addr=document.getElementById('fld_property_address');
+  if(addr) addr.addEventListener('blur',()=>{
+    const m=addr.value.toUpperCase().match(/\b([A-Z]{2})\b(?:\s*\d{5})?\s*$/);
+    const warn=document.getElementById('stateWarn'); stateUnlicensed=false; if(warn)warn.style.display="none";
+    if(m&&STATE_NAMES[m[1]]&&!LICENSED.includes(m[1])){ stateUnlicensed=true; if(warn){warn.textContent="We're not licensed in "+STATE_NAMES[m[1]]+" yet. Leave your info and we'll let you know if that changes.";warn.style.display="block";} }
+  });
+  const nx=document.getElementById('next'); if(nx) nx.onclick=onNext;
+  const bk=document.getElementById('back'); if(bk) bk.onclick=()=>{ saveStep(); step--; render(); };
+}
+
+function saveStep(){
+  const s=STEPS[step]; if(s.contact||!s.fields) return;
+  s.fields.forEach(f=>{ const el=document.getElementById('fld_'+f.k); if(el) A[f.k]=el.value.trim(); });
+}
+function onNext(){
+  const s=STEPS[step]; saveStep();
+  const err=document.getElementById('err'); err.style.display="none";
+  for(const f of s.fields){
+    if(f.showIf && A[f.showIf.k]!==f.showIf.v) continue;
+    if(f.req && !A[f.k]){ err.textContent="Please complete: "+f.label.replace(/\?.*/,'?'); err.style.display="block"; return; }
+  }
+  step++; render();
+}
+
+function renderContact(s){
+  document.getElementById('card').innerHTML='<div class="slide active"><div class="kicker">'+s.kicker+'</div>'
+    +'<h2 class="q">'+s.title+'</h2><div class="qs">'+s.sub+'</div>'
+    +'<div class="f"><label>Full name</label><input id="c_name" type="text" placeholder="First and last name" autocomplete="name" value="'+esc(A.full_name||"")+'"></div>'
+    +'<div class="f"><label>Mobile phone</label><input id="c_phone" type="tel" placeholder="(555) 555-5555" inputmode="tel" autocomplete="tel" value="'+esc(A.phone||"")+'"></div>'
+    +'<div class="f"><label>Email</label><input id="c_email" type="email" placeholder="name@email.com" inputmode="email" autocomplete="email" value="'+esc(A.email||"")+'"></div>'
+    +'<div class="f"><label>Date of birth <span class="opt">— optional, speeds up the soft credit check</span></label><input id="c_dob" type="date" value="'+esc(A.date_of_birth||"")+'"></div>'
+    +'<label class="consent"><input type="checkbox" id="c_sms_loan"><span>I agree to receive text messages from West Capital Lending, Inc. (Financing with Alex) about my loan inquiry, including updates and appointment reminders. Message frequency varies. Msg &amp; data rates may apply. Reply STOP to opt out, HELP for help. Consent is not a condition of any loan or purchase. <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> | <a href="/sms-terms" target="_blank" rel="noopener">SMS Terms</a></span></label>'
+    +'<label class="consent"><input type="checkbox" id="c_sms_mkt"><span>I also agree to receive marketing text messages from West Capital Lending, Inc. about loan programs, rates and offers, which may be sent using automated technology.</span></label>'
+    +'<label class="consent"><input type="checkbox" id="c_softpull"><span>I authorize West Capital Lending, Inc. to obtain my credit report through a soft inquiry, which will not affect my credit score, to review my loan options. A loan officer will confirm my identity by phone before any credit report is pulled.</span></label>'
+    +'<div class="nav"><button class="back" id="back">Back</button><button class="cta" id="submitBtn">See my options</button></div>'
+    +'<div class="err" id="err"></div>'
+    +'<div class="smallprint">By submitting, you agree to our <a href="/terms" target="_blank" rel="noopener">Terms of Use</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>. This is not a commitment to lend. Alexandre D\'Hose, NMLS #2705406 · West Capital Lending, Inc., NMLS #1566096 · Equal Housing Opportunity.</div>'
+    +'</div>';
+  document.getElementById('back').onclick=()=>{ step--; render(); };
+  document.getElementById('submitBtn').onclick=submitAll;
+  window.scrollTo(0,0);
+}
+
+function num(v){return Number((v||"").replace(/[^\d.]/g,''))||0;}
+
+async function submitAll(){
+  const err=document.getElementById('err'); err.style.display="none";
+  const name=document.getElementById('c_name').value.trim();
+  const phone=document.getElementById('c_phone').value.trim();
+  const email=document.getElementById('c_email').value.trim();
+  const dob=document.getElementById('c_dob').value.trim();
+  if(!name){err.textContent="Please enter your name.";err.style.display="block";return;}
+  if(phone.replace(/[^\d]/g,'').length<7){err.textContent="Please enter a valid mobile phone.";err.style.display="block";return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent="Please enter a valid email.";err.style.display="block";return;}
+  A.full_name=name;A.phone=phone;A.email=email;A.date_of_birth=dob;
+  const btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent="Sending…";
+
+  // computed fields
+  const hv=num(A.home_value), fmb=num(A.first_mortgage_balance), olb=num(A.other_liens_balance), ha=num(A.heloc_amount);
+  const cltv = hv>0 ? Math.round((fmb+olb+ha)/hv*100) : null;
+  const avail85 = Math.round(hv*0.85 - fmb - olb);
+  const params=new URLSearchParams(window.location.search);
+  const payload={ form_name:"heloc_long",
+    property_address:A.property_address||null, occupancy:A.occupancy||null, property_type:A.property_type||null,
+    home_value:A.home_value||null, first_mortgage_balance:A.first_mortgage_balance||null, first_mortgage_rate:A.first_mortgage_rate||null,
+    other_liens:A.other_liens||null, other_liens_balance:A.other_liens_balance||null,
+    heloc_amount:A.heloc_amount||null, heloc_purpose:A.heloc_purpose||null, draw_preference:A.draw_preference||null, timeline:A.timeline||null,
+    credit_score:A.credit_score||null, income_type:A.income_type||null, household_income:A.household_income||null,
+    derogatory:A.derogatory||null, co_borrower:A.co_borrower||null,
+    full_name:name, phone:phone, email:email, date_of_birth:dob||null,
+    cltv:cltv, available_equity_at_85:avail85,
+    state_unlicensed:stateUnlicensed,
+    sms_consent_loan:document.getElementById('c_sms_loan').checked,
+    sms_consent_marketing:document.getElementById('c_sms_mkt').checked,
+    softpull_consent:document.getElementById('c_softpull').checked,
+    consent_text_version:"2026-09-v1", consent_timestamp:new Date().toISOString(),
+    page_url:window.location.href, user_agent:navigator.userAgent,
+    utm_source:params.get('utm_source')||null, utm_medium:params.get('utm_medium')||null,
+    utm_campaign:params.get('utm_campaign')||null, utm_content:params.get('utm_content')||null };
+  try{ if(_sb){ await _sb.from('leads').insert(payload); } }catch(e){ console.error(e); }
+  try{ if(GHL_WEBHOOK_URL){ await fetch(GHL_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}); } }catch(e){ console.error(e); }
+
+  const fn=name.split(" ")[0];
+  document.getElementById('card').innerHTML='<div class="slide active"><div class="done"><div class="big"></div>'
+    +'<h2>Got it'+(fn?', '+esc(fn):'')+'.</h2>'
+    +'<p>Alex\'s team will reach out shortly to walk through your options. To save time on the call, have your current mortgage statement handy.</p>'
+    +(BOOKING_URL?'<a class="cta" style="display:inline-block;text-decoration:none;max-width:280px;margin-top:22px" href="'+BOOKING_URL+'" target="_blank" rel="noopener">Book a time now →</a>':'')
+    +'</div></div>';
+  document.getElementById('pbarFill').style.width="100%"; document.getElementById('pstep').textContent="Done";
+  window.scrollTo(0,0);
+}
+
+render();
+</script>
+</body>
+</html>
