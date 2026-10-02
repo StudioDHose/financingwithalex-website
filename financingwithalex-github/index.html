@@ -532,6 +532,9 @@ let fidx = 0;
 function openFunnel(e){ if(e) e.preventDefault(); fidx=0; document.getElementById('funnelOverlay').classList.add('open'); document.body.style.overflow='hidden'; frender(); }
 function closeFunnel(){ document.getElementById('funnelOverlay').classList.remove('open'); document.body.style.overflow=''; }
 
+// Open the form straight away when the link carries ?form=open (used by the toolkit pages)
+if(new URLSearchParams(window.location.search).get('form')==='open'){ window.addEventListener('load',function(){ openFunnel(); }); }
+
 function fprogress(){
   document.getElementById('funnelBarFill').style.width = ((fidx)/(FSTEPS.length-1)*100)+"%";
   document.getElementById('funnelStep').textContent = (fidx+1)+" / "+FSTEPS.length;

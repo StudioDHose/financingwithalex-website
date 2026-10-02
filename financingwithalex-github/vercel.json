@@ -1,0 +1,14 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/day2",
+      "destination": "/toolkit/family-mortgage-sheet"
+    },
+    {
+      "source": "/family",
+      "destination": "/toolkit/family-mortgage-sheet"
+    }
+  ]
+}

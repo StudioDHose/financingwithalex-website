@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Mortgage Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --ground: #f1f4f8; --surface: #FFFFFF; --ink: #0b1c33; --ink-soft: #5a6879; --line: #cfdae8;
+    --save: #1b4fa0; --save-soft: #e6edf7; --cost: #B4533A; --cost-soft: #F6E6E0; --focus: #1b4fa0;
+    --display: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+    --body: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 16px/1.5 var(--body); }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 20px 16px 56px; }
+  .brand { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .brand a { color: var(--save); text-decoration: none; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--save); background: var(--save-soft); border-radius: 999px; padding: 3px 10px; }
+  h1 { font: 800 clamp(28px, 7vw, 38px)/1.08 var(--display); letter-spacing: -.02em; margin: 14px 0 8px; text-wrap: balance; }
+  .lede { color: var(--ink-soft); margin: 0 0 16px; }
+  section { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  h2 { font: 700 20px/1.2 var(--display); margin: 0 0 4px; }
+  .when { font-size: 13px; color: var(--ink-soft); margin: 0 0 10px; }
+  [hidden] { display: none !important; }
+
+  .group { margin: 22px 0 0; }
+  .group h2 { margin: 0 0 2px; }
+  .tools { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; }
+  a.tool { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; color: var(--ink); text-decoration: none; }
+  a.tool:hover { border-color: var(--save); }
+  a.tool:focus-visible, a.cta:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .tool .day { grid-column: 1; font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--save); font-variant-numeric: tabular-nums; }
+  .tool .name { grid-column: 1; font: 700 18px/1.25 var(--display); }
+  .tool .blurb { grid-column: 1; font-size: 14.5px; color: var(--ink-soft); }
+  .tool .go { grid-column: 2; grid-row: 1 / span 3; font-size: 22px; color: var(--save); line-height: 1; }
+  .tool .soon { display: inline-block; margin-left: 8px; font-size: 11px; letter-spacing: .04em; color: var(--cost); background: var(--cost-soft); border-radius: 999px; padding: 1px 8px; }
+  .more { font-size: 14px; color: var(--ink-soft); margin: 18px 2px 0; }
+  .note { background: var(--save-soft); border-radius: 10px; padding: 11px 13px; font-size: 14.5px; margin-top: 14px; }
+  .preview { background: var(--cost-soft); color: var(--cost); border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+
+  .alex { background: var(--save); color: #fff; border-color: var(--save); margin-top: 24px; }
+  .alex h2 { color: #fff; }
+  .alex p { margin: 6px 0 12px; }
+  .alex .states { font-size: 12.5px; opacity: .85; margin: 12px 0 0; }
+  a.cta { display: inline-block; font: 600 16px var(--body); background: #fff; color: var(--save); text-decoration: none; border-radius: 10px; padding: 13px 18px; }
+  footer { margin-top: 26px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+  footer a { color: inherit; }
+  @media print {
+    .screen-only { display: none; }
+    body { background: #fff; font-size: 12px; }
+    section, a.tool { break-inside: avoid; border-color: #bbb; }
+    a.tool { padding: 8px 12px; } .tools { gap: 6px; }
+    @page { size: letter; margin: .5in; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h1 { font-size: 26px; margin: 8px 0 4px; } h2 { font-size: 15px; } .lede { margin-bottom: 6px; }
+    .alex p { margin: 4px 0 8px; } a.cta { padding: 8px 12px; font-size: 13px; }
+    a.cta::after { content: "  →  financingwithalex.com"; font-weight: 500; }
+    footer { font-size: 10px; margin-top: 10px; }
+    .wrap { padding: 0; max-width: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <a href="/" style="color:inherit;text-decoration:none">Financing with Alex</a>
+    <a href="https://www.instagram.com/financingwithalex/" target="_blank" rel="noopener">@financingwithalex</a>
+  </div>
+
+  <span class="pill" style="margin-top:16px">Free toolkit · 30 days</span>
+  <h1>Free mortgage tools</h1>
+  <p class="lede">One page for each question about your home loan. No sign-up. What you type stays on your device. A new tool unlocks here when its video posts.</p>
+
+  <p class="preview screen-only" id="preview" hidden></p>
+  <div id="groups" aria-live="polite"></div>
+  <div class="note" id="empty" hidden></div>
+  <p class="more" id="more" hidden>More tools unlock through October.</p>
+
+  <section class="alex">
+    <h2>Ready for the loan itself?</h2>
+    <p>These tools are free and yours to keep. When you need the loan, whether you're buying, refinancing or using your equity, Alex is a mortgage broker and can show you what different lenders would offer.</p>
+    <a class="cta" href="/?form=open&amp;utm_source=toolkit&amp;utm_medium=toolkit-hub">Start with Alex</a>
+    <p class="states">No obligation. Alex D'Hose is a mortgage broker licensed in AL, AZ, CA, CT, FL, HI, ID, MD, MI, NE, ND, OH, OK, OR, PA, TN, TX, VA, WA.</p>
+  </section>
+
+  <footer>
+    <p>Mortgage rules differ by loan type, servicer, county and state. Each tool says what varies. Read that line before you act on a result.</p>
+    <p>For education only. Not a loan offer or commitment to lend. Rates, payments, and terms vary by borrower and program and are subject to credit approval. Alex D'Hose, NMLS #2705406, West Capital Lending. Equal Housing Opportunity.</p>
+    <p>30 Days of Mortgage Advice Nobody Actually Explains. More free tools from <a href="https://www.instagram.com/financingwithalex/" target="_blank" rel="noopener">@financingwithalex</a>.</p>
+  </footer>
+</div>
+
+<script>
+  /* ---------- DATA: edit here. One row per tool. ----------
+     file  = the page's filename (same folder as this hub)
+     day   = series day number (Day 0 = Thu Oct 1, 2026), or null if the tool is not tied to a series day
+     date  = the day the tool unlocks on this page, YYYY-MM-DD, in the visitor's local time
+     group = 'buy' (Home buying toolkit) or 'own' (For homeowners)                                    */
+  //<pure>
+  const GROUPS = [
+    { id: 'buy', title: 'Home buying toolkit', sub: 'From your first numbers to your first 90 days in the house.' },
+    { id: 'own', title: 'For homeowners', sub: 'For the loan you already have.' }
+  ];
+  const TOOLS = [
+
+    { file: '/toolkit/family-mortgage-sheet',   title: 'Family mortgage sheet',           blurb: 'One page your family can find: who you pay, the loan number and who to call.',           day: 2,    date: '2026-10-03', group: 'own' },
+  ];
+
+  /* ---------- PURE LOGIC (no DOM). Tested with node. ---------- */
+  const pad = n => (n < 10 ? '0' : '') + n;
+  // Local calendar date as YYYY-MM-DD (not UTC), so a tool unlocks at the visitor's own midnight.
+  const localISO = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const fromISO = s => { const p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); };
+  const isISO = s => /^\d{4}-\d{2}-\d{2}$/.test(s || '') && localISO(fromISO(s)) === s;
+  const byDay = (a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : (a.day || 0) - (b.day || 0);
+
+  // What the page shows on a given local date.
+  function view(tools, todayISO, previewAll) {
+    const sorted = tools.slice().sort(byDay);
+    const unlocked = sorted.filter(t => t.date <= todayISO);
+    const upcoming = sorted.filter(t => t.date > todayISO);
+    return {
+      shown: previewAll ? sorted : unlocked,
+      upcomingCount: previewAll ? 0 : upcoming.length,
+      nextDate: upcoming.length ? upcoming[0].date : null,
+      isUpcoming: t => t.date > todayISO
+    };
+  }
+  function shortDate(iso) { return fromISO(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+  function longDate(iso) { return fromISO(iso).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }); }
+  function dayLabel(t) { return (t.day == null ? '' : 'Day ' + t.day + ' · ') + shortDate(t.date); }
+  //</pure>
+
+  /* ---------- PAGE ---------- */
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let previewAll = false, today = localISO(new Date()), asOf = null;
+  try {
+    const q = new URLSearchParams(location.search);
+    previewAll = q.get('preview') === 'all';
+    if (isISO(q.get('asof'))) { asOf = q.get('asof'); today = asOf; }   // review aid: ?asof=2026-10-14 shows the page as of that date
+  } catch (e) {}
+
+  const v = view(TOOLS, today, previewAll);
+  let html = '';
+  GROUPS.forEach(g => {
+    const list = v.shown.filter(t => t.group === g.id);
+    if (!list.length) return;
+    html += '<div class="group"><h2>' + esc(g.title) + '</h2><p class="when">' + esc(g.sub) + '</p><ul class="tools">' +
+      list.map(t => '<li><a class="tool" href="' + esc(t.file) + '"><span class="day">' + esc(dayLabel(t)) +
+        (v.isUpcoming(t) ? '<span class="soon">Not posted yet</span>' : '') + '</span><span class="name">' + esc(t.title) +
+        '</span><span class="blurb">' + esc(t.blurb) + '</span><span class="go" aria-hidden="true">→</span></a></li>').join('') +
+      '</ul></div>';
+  });
+  document.getElementById('groups').innerHTML = html;
+
+  const empty = document.getElementById('empty'), more = document.getElementById('more'), prev = document.getElementById('preview');
+  if (!v.shown.length) {
+    empty.hidden = false;
+    empty.textContent = v.nextDate ? 'The first tool unlocks on ' + longDate(v.nextDate) + '. More tools unlock through October.' : 'No tools are listed yet.';
+  } else if (v.upcomingCount > 0) more.hidden = false;
+  if (previewAll || asOf) {
+    prev.hidden = false;
+    prev.textContent = previewAll ? 'Preview: showing every tool, including the ones not posted yet. Visitors only see a tool once its date arrives.'
+                                  : 'Preview: showing this page as of ' + longDate(asOf) + '.';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Mortgage Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --ground: #f1f4f8; --surface: #FFFFFF; --ink: #0b1c33; --ink-soft: #5a6879; --line: #cfdae8;
+    --save: #1b4fa0; --save-soft: #e6edf7; --cost: #B4533A; --cost-soft: #F6E6E0; --focus: #1b4fa0;
+    --display: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+    --body: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 16px/1.5 var(--body); }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 20px 16px 56px; }
+  .brand { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .brand a { color: var(--save); text-decoration: none; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--save); background: var(--save-soft); border-radius: 999px; padding: 3px 10px; }
+  h1 { font: 800 clamp(28px, 7vw, 38px)/1.08 var(--display); letter-spacing: -.02em; margin: 14px 0 8px; text-wrap: balance; }
+  .lede { color: var(--ink-soft); margin: 0 0 16px; }
+  .progress { position: sticky; top: 0; z-index: 2; background: var(--ground); padding: 10px 0; }
+  .bar { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .bar span { display: block; height: 100%; width: 0; background: var(--save); transition: width .2s; }
+  .count { font-size: 13px; color: var(--ink-soft); margin-top: 5px; font-variant-numeric: tabular-nums; }
+  section { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  h2 { font: 700 20px/1.2 var(--display); margin: 0 0 4px; }
+  .when { font-size: 13px; color: var(--ink-soft); margin: 0 0 10px; }
+  label.item { display: grid; grid-template-columns: 26px 1fr; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); cursor: pointer; }
+  label.item:first-of-type { border-top: 0; }
+  label.item input { width: 22px; height: 22px; margin: 1px 0 0; accent-color: var(--save); }
+  label.item strong { display: block; font-weight: 600; }
+  label.item small { display: block; color: var(--ink-soft); font-size: 14px; margin-top: 2px; }
+  label.item input:checked + span strong { text-decoration: line-through; color: var(--ink-soft); }
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-bottom: 3px; }
+  .field input, textarea { width: 100%; font: inherit; color: var(--ink); background: var(--ground); border: 1px solid var(--line); border-radius: 9px; padding: 10px 11px; }
+  .field input:focus-visible, textarea:focus-visible, button:focus-visible, label.item input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  table.cmp { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 15px; }
+  table.cmp th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); padding: 0 6px 6px 0; }
+  table.cmp td { padding: 4px 6px 4px 0; vertical-align: middle; }
+  table.cmp td:first-child { font-weight: 600; width: 34%; }
+  table.cmp input { width: 100%; font: inherit; color: var(--ink); background: var(--ground); border: 1px solid var(--line); border-radius: 8px; padding: 8px 9px; }
+  .flag { display: none; margin-top: 10px; background: var(--cost-soft); color: var(--cost); border-radius: 9px; padding: 9px 11px; font-size: 14px; font-weight: 600; }
+  .note { background: var(--save-soft); border-radius: 10px; padding: 11px 13px; font-size: 14.5px; margin-top: 12px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  button { font: 600 15px var(--body); border-radius: 10px; padding: 12px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+  button.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .alex { background: var(--save); color: #fff; border-color: var(--save); }
+  .alex h2 { color: #fff; }
+  .alex p { margin: 6px 0 12px; }
+  .alex .states { font-size: 12.5px; opacity: .85; margin: 12px 0 0; }
+  a.cta { display: inline-block; font: 600 16px var(--body); background: #fff; color: var(--save); text-decoration: none; border-radius: 10px; padding: 13px 18px; }
+  a.cta:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  footer { margin-top: 26px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+  footer a { color: inherit; }
+  @media (max-width: 480px) { .fields { grid-template-columns: 1fr; } }
+  @media print {
+    .screen-only { display: none; }
+    body { background: #fff; font-size: 12px; }
+    .progress, .actions { display: none; }
+    section { break-inside: avoid; border-color: #bbb; margin: 8px 0; padding: 10px; }
+    @page { size: letter; margin: .5in; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h1 { font-size: 26px; margin: 8px 0 4px; } h2 { font-size: 15px; } .lede { margin-bottom: 6px; }
+    label.item { padding: 6px 0; } label.item small { font-size: 11px; }
+    .alex p { margin: 4px 0 8px; } a.cta { padding: 8px 12px; font-size: 13px; }
+    a.cta::after { content: "  →  financingwithalex.com"; font-weight: 500; }
+    footer { font-size: 10px; margin-top: 10px; }
+    .wrap { padding: 0; max-width: none; }
+  }
+  .fields.one { grid-template-columns: 1fr; }
+  .steps { margin: 6px 0 0; padding-left: 20px; }
+  .steps li { margin: 8px 0; }
+  .steps strong { display: block; }
+  .warn { background: var(--cost-soft); color: var(--cost); border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; margin-top: 12px; }
+  @media print { .field input, textarea { background: #fff; min-height: 30px; } .fields { gap: 6px; } }
+  /* Print: the whole sheet on ONE letter page. Top half = the loan, bottom half = for whoever finds it. */
+  @media print {
+    body { font-size: 10px; line-height: 1.3; }
+    .brand { font-size: 10px; }
+    .pill { font-size: 8.5px; padding: 1px 7px; margin-top: 4px !important; }
+    h1 { font-size: 20px; margin: 4px 0 2px; }
+    .lede { font-size: 10px; margin: 0 0 4px; }
+    section { margin: 5px 0; padding: 6px 10px; border-radius: 8px; }
+    h2 { font-size: 12px; margin: 0 0 2px; }
+    .when { display: none; }
+    .fields { grid-template-columns: repeat(3, 1fr); gap: 3px 12px; margin-top: 2px; }
+    .fields.one { grid-template-columns: repeat(2, 1fr); }
+    .fields.one .field:only-child { grid-column: 1 / -1; }
+    section:nth-of-type(5) .fields { grid-template-columns: repeat(4, 1fr); }
+    .field label { font-size: 8.5px; margin: 0; }
+    .field input { border: 0; border-bottom: 1px solid #8c9bb0; border-radius: 0; background: none; padding: 1px 0; min-height: 17px; font-size: 10.5px; }
+    .field input::placeholder { color: transparent; }
+    .warn { padding: 3px 8px; font-size: 9px; margin-top: 4px; border-radius: 6px; }
+    .steps { margin: 2px 0 0; padding-left: 16px; }
+    .steps li { margin: 2px 0; }
+    .steps strong { display: inline; }
+    .steps strong::after { content: " "; }
+    textarea { resize: none; min-height: 30px; height: 30px; padding: 3px 6px; border-radius: 6px; background: #fff; }
+    .alex { padding: 6px 10px; }
+    .alex p { margin: 2px 0 4px; }
+    a.cta { padding: 3px 9px; font-size: 10px; border-radius: 6px; }
+    .alex .states { font-size: 8px; margin: 4px 0 0; }
+    footer { font-size: 7.5px; margin-top: 5px; line-height: 1.3; }
+    footer p { margin: 2px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <a href="/toolkit" style="color:inherit;text-decoration:none">← All free tools</a>
+    <a href="https://www.instagram.com/financingwithalex/" target="_blank" rel="noopener">@financingwithalex</a>
+  </div>
+
+  <span class="pill" style="margin-top:16px">Homeowner toolkit · Day 2</span>
+  <h1>Family mortgage sheet</h1>
+  <p class="lede">One page your family can find if something happens to you. Fill it in, print it, and tell one person where it is. <span class="screen-only">What you type stays on this device and is never sent anywhere.</span></p>
+
+  <section>
+    <h2>The home and the loan</h2>
+    <p class="when">Everything here is on your monthly mortgage statement.</p>
+    <div class="fields one"><div class="field"><label for="addr">Property address</label><input type="text" id="addr" data-save placeholder="" ></div></div>
+    <div class="fields">
+      <div class="field"><label for="servicer">Mortgage servicer (who you pay)</label><input type="text" id="servicer" data-save placeholder="" ></div>
+      <div class="field"><label for="loan">Loan number</label><input type="text" id="loan" data-save placeholder="" ></div>
+      <div class="field"><label for="sphone">Servicer phone</label><input type="tel" id="sphone" data-save placeholder="" ></div>
+      <div class="field"><label for="ssite">Servicer website</label><input type="text" id="ssite" data-save placeholder="" ></div>
+      <div class="field"><label for="pay">Monthly payment</label><input type="text" id="pay" data-save placeholder="$" inputmode="decimal"></div>
+      <div class="field"><label for="due">Due on the</label><input type="text" id="due" data-save placeholder="1st" ></div>
+    </div>
+    <div class="fields one">
+      <div class="field"><label for="paid">Paid from (bank and account nickname, autopay or manual)</label><input type="text" id="paid" data-save placeholder="" ></div>
+      <div class="field"><label for="names">Whose names are on the loan</label><input type="text" id="names" data-save placeholder="" ></div>
+    </div>
+    <div class="warn">Do not write passwords on this sheet. Write where the login is kept instead.</div>
+    <div class="fields one" style="margin-top:10px"><div class="field"><label for="login">Where the servicer login is kept</label><input type="text" id="login" data-save placeholder="Password manager, notebook in the safe..." ></div></div>
+  </section>
+
+  <section>
+    <h2>Taxes and insurance</h2>
+    <p class="when">If these are paid through escrow, they are part of the mortgage payment. If not, someone has to pay them separately.</p>
+    <div class="fields">
+      <div class="field"><label for="escrow">Paid through escrow?</label><input type="text" id="escrow" data-save placeholder="Yes / No" ></div>
+      <div class="field"><label for="ins">Homeowners insurance company</label><input type="text" id="ins" data-save placeholder="" ></div>
+      <div class="field"><label for="pol">Policy number</label><input type="text" id="pol" data-save placeholder="" ></div>
+      <div class="field"><label for="agent">Insurance agent and phone</label><input type="text" id="agent" data-save placeholder="" ></div>
+      <div class="field"><label for="county">County for property taxes</label><input type="text" id="county" data-save placeholder="" ></div>
+      <div class="field"><label for="hoa">HOA and how it is paid (if any)</label><input type="text" id="hoa" data-save placeholder="" ></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Anything else owed on the home</h2>
+    <p class="when">A HELOC, a second mortgage, or solar. Leave blank if none.</p>
+    <div class="fields">
+      <div class="field"><label for="l2">Lender</label><input type="text" id="l2" data-save placeholder="" ></div>
+      <div class="field"><label for="l2n">Account number</label><input type="text" id="l2n" data-save placeholder="" ></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Where the papers are</h2>
+    <div class="fields one">
+      <div class="field"><label for="docs">Closing documents and deed</label><input type="text" id="docs" data-save placeholder="" ></div>
+      <div class="field"><label for="will">Will or trust, and the attorney who has it</label><input type="text" id="will" data-save placeholder="" ></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Who to call</h2>
+    <div class="fields">
+      <div class="field"><label for="p1">Person who should handle this</label><input type="text" id="p1" data-save placeholder="" ></div>
+      <div class="field"><label for="p1p">Their phone</label><input type="tel" id="p1p" data-save placeholder="" ></div>
+      <div class="field"><label for="p2">Estate attorney</label><input type="text" id="p2" data-save placeholder="" ></div>
+      <div class="field"><label for="p2p">Their phone</label><input type="tel" id="p2p" data-save placeholder="" ></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>If something happens to me</h2>
+    <p class="when">For whoever is reading this.</p>
+    <ol class="steps">
+      <li><strong>Keep making the payment.</strong>The loan does not pause. The next payment is still due on the usual date.</li>
+      <li><strong>Call the servicer and tell them.</strong>Ask what they need to confirm you as a "successor in interest." That lets them talk to you about the loan.</li>
+      <li><strong>Do not rush to sell.</strong>In many cases a family member who inherits the home can keep the existing loan. Ask before you decide.</li>
+      <li><strong>Talk to an estate attorney</strong>about the title and the estate. That part is legal, not mortgage.</li>
+    </ol>
+    <div class="field" style="margin-top:12px"><label for="notes">Anything else they should know</label><textarea id="notes" rows="3" data-save></textarea></div>
+  </section>
+
+  <section class="alex">
+    <h2>Inherited a home with a mortgage on it?</h2>
+    <p>Who gets the house is for the will and an estate attorney. The loan is Alex's side. Tell him about the home and he'll walk you through your loan options before you decide anything.</p>
+    <a class="cta" href="/?form=open&amp;utm_source=toolkit&amp;utm_medium=family-sheet">Talk to Alex about the loan</a>
+    <p class="states">No obligation. Alex D'Hose is a mortgage broker licensed in AL, AZ, CA, CT, FL, HI, ID, MD, MI, NE, ND, OH, OK, OR, PA, TN, TX, VA, WA.</p>
+  </section>
+
+  <div class="actions">
+    <button class="primary" type="button" onclick="window.print()">Save my sheet as a PDF</button>
+    <button type="button" id="reset">Clear this device</button>
+  </div>
+
+  <p class="screen-only" style="font-size:13.5px;color:var(--ink-soft);margin:10px 0 0">The button opens your print screen with everything you typed already filled in. Choose <strong>Save as PDF</strong> there. On an iPhone, tap the Share icon on the print screen, then <strong>Save to Files</strong>. You can also just print it.</p>
+
+  <footer>
+    <p>What happens to a home and its loan after a death depends on the loan, the title and state law. This sheet covers the mortgage side only. It is not legal advice.</p>
+    <p>For education only. Not a loan offer or commitment to lend. Rates, payments, and terms vary by borrower and program and are subject to credit approval. Alex D'Hose, NMLS #2705406, West Capital Lending. Equal Housing Opportunity.</p>
+    <p>Day 2 of 30: "What happens to your mortgage when you die." More free tools from <a href="https://www.instagram.com/financingwithalex/" target="_blank" rel="noopener">@financingwithalex</a>.</p>
+  </footer>
+</div>
+
+<script>
+const KEY = 'fwa-family-sheet-v1';
+const fields = [...document.querySelectorAll('[data-save]')];
+let state = {};
+try { state = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+function save() {
+  fields.forEach(f => state[f.id] = f.value);
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+}
+fields.forEach(f => { if (f.id in state) f.value = state[f.id]; f.addEventListener('input', save); });
+document.getElementById('reset').addEventListener('click', () => {
+  if (!confirm('Erase everything typed on this sheet from this device?')) return;
+  fields.forEach(f => f.value = '');
+  try { localStorage.removeItem(KEY); } catch (e) {}
+});
+</script>
+</body>
+</html>
