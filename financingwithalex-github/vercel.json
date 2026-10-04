@@ -1,6 +1,36 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/instagram",
+      "destination": "/"
+    },
+    {
+      "source": "/facebook",
+      "destination": "/"
+    },
+    {
+      "source": "/tiktok",
+      "destination": "/"
+    },
+    {
+      "source": "/youtube",
+      "destination": "/"
+    },
+    {
+      "source": "/apply",
+      "destination": "/"
+    },
+    {
+      "source": "/dscr",
+      "destination": "/"
+    },
+    {
+      "source": "/website",
+      "destination": "/"
+    }
+  ],
   "redirects": [
     {
       "source": "/day2",
