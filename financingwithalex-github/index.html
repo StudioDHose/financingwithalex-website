@@ -600,7 +600,8 @@ async function fsubmit(){
   if(phone.replace(/[^\d]/g,'').length<7) return fshowErr("Please enter a valid phone number.");
   fanswers.full_name=name; fanswers.email=email; fanswers.phone=phone; fanswers.property_address=addr;
   const btn=document.getElementById('fsubmit'); btn.disabled=true; btn.textContent="Sending…";
-  const payload={ looking_for:fanswers.looking_for||null, loan_purpose:fanswers.loan_purpose||null,
+  const source = ({instagram:"Instagram",facebook:"Facebook",tiktok:"Tiktok",youtube:"Youtube",website:"Website",apply:"Apply",dscr:"DSCR"})[new URLSearchParams(window.location.search).get("source")?.toLowerCase()] || "Website";
+  const payload={ source:source, looking_for:fanswers.looking_for||null, loan_purpose:fanswers.loan_purpose||null,
     occupancy:fanswers.occupancy||null, property_type:fanswers.property_type||null,
     loan_amount:fanswers.loan_amount||null, credit_score:fanswers.credit_score||null,
     full_name:name, email:email, phone:phone, property_address:addr||null };
