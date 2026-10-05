@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homebuyer Game Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --ground: #f1f4f8; --surface: #FFFFFF; --ink: #0b1c33; --ink-soft: #5a6879; --line: #cfdae8;
+    --save: #1b4fa0; --save-soft: #e6edf7; --cost: #B4533A; --cost-soft: #F6E6E0; --focus: #1b4fa0;
+    --display: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+    --body: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 16px/1.5 var(--body); }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 20px 16px 56px; }
+  .brand { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .brand a { color: var(--save); text-decoration: none; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--save); background: var(--save-soft); border-radius: 999px; padding: 3px 10px; }
+  h1 { font: 800 clamp(28px, 7vw, 38px)/1.08 var(--display); letter-spacing: -.02em; margin: 14px 0 8px; text-wrap: balance; }
+  .lede { color: var(--ink-soft); margin: 0 0 16px; }
+  section { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  h2 { font: 700 20px/1.2 var(--display); margin: 0 0 4px; }
+  h3 { font: 700 16px/1.25 var(--display); margin: 20px 0 4px; }
+  .when { font-size: 13px; color: var(--ink-soft); margin: 0 0 10px; }
+  [hidden] { display: none !important; }
+
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+  .field { min-width: 0; }
+  .field.full { grid-column: 1 / -1; }
+  .field label, .label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-bottom: 3px; }
+  .field small { display: block; font-size: 12.5px; color: var(--ink-soft); margin-top: 3px; line-height: 1.35; }
+  .input { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 9px; background: var(--ground); padding: 0 11px; }
+  .input:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .input span { color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .input input { border: 0; background: transparent; color: var(--ink); font: 500 18px var(--body); padding: 10px 6px; width: 100%; min-width: 0; font-variant-numeric: tabular-nums; outline: none; }
+  .field select { width: 100%; font: 500 16px var(--body); color: var(--ink); background: var(--ground); border: 1px solid var(--line); border-radius: 9px; padding: 12px 11px; }
+  .field label.check { display: flex; gap: 10px; align-items: center; font-size: 15px; font-weight: 500; color: var(--ink); margin: 10px 0 0; cursor: pointer; }
+  .check input { width: 22px; height: 22px; margin: 0; accent-color: var(--save); flex: none; }
+  select:focus-visible, button:focus-visible, a:focus-visible, .check input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .seg button { padding: 11px 2px; font-size: 14px; background: var(--ground); }
+  .seg button[aria-pressed="true"] { background: var(--save); border-color: var(--save); color: #fff; }
+
+  .answer { background: var(--save-soft); border-radius: 12px; padding: 16px; margin-top: 8px; }
+  .answer .big { font: 800 clamp(40px, 12vw, 56px)/1 var(--display); color: var(--save); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .answer .big-label { font-weight: 600; margin-top: 6px; }
+  .rows { margin-top: 14px; border-top: 1px solid var(--line); }
+  .rowx { padding: 12px 0 0; }
+  .rowx b { display: block; font: 700 clamp(21px, 6.2vw, 26px)/1.15 var(--display); font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+  .rowx small { font-size: 13px; color: var(--ink-soft); line-height: 1.35; display: block; margin-top: 2px; }
+  .est { font-size: 12.5px; color: var(--ink-soft); margin: 8px 0 0; }
+  .zero-note { color: var(--ink-soft); margin: 8px 0 0; }
+  p.body { margin: 6px 0 0; font-size: 15px; }
+  .steps { margin: 6px 0 0; padding-left: 20px; font-size: 15px; }
+  .steps li { margin: 8px 0; }
+  .steps strong { display: block; }
+  .steps .num { font-variant-numeric: tabular-nums; }
+  table.kv { width: 100%; border-collapse: collapse; font-size: 15px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+  table.kv td { padding: 6px 0; border-bottom: 1px solid var(--line); }
+  table.kv td:last-child { text-align: right; white-space: nowrap; padding-left: 10px; }
+  table.kv tr.total td { font-weight: 700; border-bottom: 0; }
+  .flag { margin-top: 10px; background: var(--cost-soft); color: var(--cost); border-radius: 9px; padding: 9px 11px; font-size: 14px; font-weight: 600; }
+  .note { background: var(--save-soft); border-radius: 10px; padding: 11px 13px; font-size: 14.5px; margin-top: 12px; }
+  .note a, .steps a, p.body a, .src a, .links a { color: var(--save); font-weight: 600; }
+  .src { font-size: 12.5px; color: var(--ink-soft); margin: 8px 0 0; }
+  .src a { font-weight: 500; }
+  .links { font-size: 14px; margin: 12px 0 0; color: var(--ink-soft); }
+  .warn { background: var(--cost-soft); color: var(--cost); border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; margin-top: 12px; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  button { font: 600 15px var(--body); border-radius: 10px; padding: 12px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+  button.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .alex { background: var(--save); color: #fff; border-color: var(--save); }
+  .alex h2 { color: #fff; }
+  .alex p { margin: 6px 0 12px; }
+  .alex .states { font-size: 12.5px; opacity: .85; margin: 12px 0 0; }
+  a.cta { display: inline-block; font: 600 16px var(--body); background: #fff; color: var(--save); text-decoration: none; border-radius: 10px; padding: 13px 18px; }
+  footer { margin-top: 26px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+  footer a { color: inherit; }
+  @media (max-width: 480px) { .fields { grid-template-columns: 1fr; } }
+  @media print {
+    .screen-only, .actions { display: none !important; }
+    body { background: #fff; font-size: 11.5px; }
+    section { break-inside: avoid; border-color: #bbb; margin: 7px 0; padding: 9px 10px; }
+    #plan { break-inside: auto; }
+    .answer, .note, .flag, .steps li, table.kv, h3 { break-inside: avoid; } h3 { break-after: avoid; margin-top: 12px; font-size: 13px; }
+    @page { size: letter; margin: .5in; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h1 { font-size: 24px; margin: 8px 0 4px; } h2 { font-size: 15px; } .lede { margin-bottom: 6px; }
+    .fields { grid-template-columns: repeat(4, 1fr); gap: 6px 8px; } .field.full { grid-column: span 2; } .field.full .fields { grid-template-columns: 1fr 1fr; }
+    .input { background: #fff; } .input input { font-size: 13px; padding: 4px 6px; }
+    .field select { background: #fff; font-size: 12px; padding: 5px 6px; } .field small { font-size: 9.5px; }
+    .field label, .label { font-size: 10.5px; } .field label.check { font-size: 11.5px; margin-top: 4px; } .check input { width: 14px; height: 14px; }
+    .answer { padding: 10px 12px; } .answer .big { font-size: 30px; }
+    .rows { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 16px; } .rowx b { font-size: 17px; } .rowx small { font-size: 10.5px; }
+    p.body, .steps, table.kv { font-size: 11.5px; } .steps li { margin: 4px 0; } table.kv td { padding: 3px 0; }
+    .note, .flag, .warn { font-size: 11px; padding: 6px 9px; margin-top: 6px; } .src, .links, .est { font-size: 10px; }
+    .alex p { margin: 4px 0 8px; } a.cta { padding: 8px 12px; font-size: 13px; }
+    a.cta::after { content: "  →  financingwithalex.com"; font-weight: 500; }
+    footer { font-size: 10px; margin-top: 10px; }
+    .wrap { padding: 0; max-width: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <span>Financing with Alex</span>
+    <a href="https://www.instagram.com/financingwithalex/" target="_blank" rel="noopener">@financingwithalex</a>
+  </div>
+
+  <span class="pill" style="margin-top:16px">Home buying toolkit · Day 8</span>
+  <h1>Homebuyer game plan</h1>
+  <p class="lede">Type in your pay, your debts and your savings. Get a comfortable payment, a price range and the cash you would need to close, on a conventional, FHA or VA loan. <span class="screen-only">What you type stays on this device and is never sent anywhere.</span></p>
+
+  <section aria-labelledby="money-h">
+    <h2 id="money-h">Your money</h2>
+    <p class="when" id="example-note">Example numbers below. Type yours over them.</p>
+    <div class="fields">
+      <div class="field full">
+        <div class="fields" style="margin-top:0">
+          <div class="field" id="f-income">
+            <label for="income">Monthly income before taxes</label>
+            <div class="input"><span>$</span><input id="income" type="text" inputmode="decimal" autocomplete="off" value="6,067" data-save></div>
+            <small>Everyone who will be on the loan, added together.</small>
+          </div>
+          <div class="field" id="f-hourly" hidden>
+            <label for="hourlyRate">Hourly pay before taxes</label>
+            <div class="input"><span>$</span><input id="hourlyRate" type="text" inputmode="decimal" autocomplete="off" value="35" data-save><span>/hr</span></div>
+          </div>
+          <div class="field" id="f-hours" hidden>
+            <label for="hoursPerWeek">Hours a week</label>
+            <div class="input"><input id="hoursPerWeek" type="text" inputmode="decimal" autocomplete="off" value="40" data-save><span>hrs</span></div>
+          </div>
+        </div>
+        <small id="hourly-math" hidden></small>
+        <label class="check" for="hourly"><input type="checkbox" id="hourly" data-save> I'm paid hourly</label>
+      </div>
+      <div class="field">
+        <label for="debts">Monthly debt payments</label>
+        <div class="input"><span>$</span><input id="debts" type="text" inputmode="decimal" autocomplete="off" value="400" data-save></div>
+        <small>Car, student loans, card minimums. Not rent.</small>
+      </div>
+      <div class="field">
+        <label for="savings">Savings for the purchase</label>
+        <div class="input"><span>$</span><input id="savings" type="text" inputmode="decimal" autocomplete="off" value="30,000" data-save></div>
+      </div>
+      <div class="field">
+        <label for="rent">Rent you pay now (optional)</label>
+        <div class="input"><span>$</span><input id="rent" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="Optional" data-save></div>
+      </div>
+      <div class="field full">
+        <label for="credit">Credit score range (optional)</label>
+        <select id="credit" data-save>
+          <option value="">Not sure</option>
+          <option>Below 620</option>
+          <option>620 to 679</option>
+          <option>680 to 739</option>
+          <option>740 or higher</option>
+        </select>
+        <small>For your own notes. It does not change the numbers on this page.</small>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="assume-h">
+    <h2 id="assume-h">Your assumptions</h2>
+    <p class="when">These are examples, not quotes. Change them to match your area and what a lender tells you. The loan is a 30-year fixed.</p>
+    <div class="fields">
+      <div class="field full">
+        <span class="label" id="loan-l">Loan type</span>
+        <div class="seg" role="group" aria-labelledby="loan-l">
+          <button type="button" data-loan="conv" aria-pressed="true">Conventional</button>
+          <button type="button" data-loan="fha" aria-pressed="false">FHA</button>
+          <button type="button" data-loan="va" aria-pressed="false">VA</button>
+        </div>
+        <input type="hidden" id="loanType" value="conv" data-save>
+        <small id="loan-note"></small>
+      </div>
+      <div class="field full" id="f-va" hidden>
+        <label class="check" for="vaUsed"><input type="checkbox" id="vaUsed" data-save> I have used a VA loan before</label>
+        <label class="check" for="vaExempt"><input type="checkbox" id="vaExempt" data-save> I receive VA disability compensation</label>
+        <small>Both change the one-time VA funding fee.</small>
+      </div>
+      <div class="field">
+        <label for="downPct">Down payment</label>
+        <div class="input"><input id="downPct" type="text" inputmode="decimal" autocomplete="off" value="10" data-save><span>% of price</span></div>
+        <small id="down-note" hidden></small>
+      </div>
+      <div class="field">
+        <label for="rate">Interest rate (Example)</label>
+        <div class="input"><input id="rate" type="text" inputmode="decimal" autocomplete="off" value="6.5" data-save><span>%</span></div>
+      </div>
+      <div class="field">
+        <label for="tiPct">Property tax + home insurance</label>
+        <div class="input"><input id="tiPct" type="text" inputmode="decimal" autocomplete="off" value="1.5" data-save><span>% of price a year</span></div>
+        <small>An assumption. This varies a lot by area. Look at the tax line on a listing near you and ask for an insurance quote.</small>
+      </div>
+      <div class="field" id="f-mi">
+        <label for="mi">Monthly mortgage insurance (optional)</label>
+        <div class="input"><span>$</span><input id="mi" type="text" inputmode="decimal" autocomplete="off" value="0" data-save></div>
+        <small>Leave at 0 if you do not have a lender's estimate yet.</small>
+      </div>
+    </div>
+  </section>
+
+  <section id="plan" aria-labelledby="plan-h" aria-live="polite">
+    <h2 id="plan-h">Your plan</h2>
+    <p class="zero-note" id="zero-note" hidden>Type your income above to see your plan.</p>
+    <div id="results">
+      <div class="answer">
+        <div class="big" id="comfy">$0</div>
+        <div class="big-label">a month, all in. A comfortable house payment at 28% of your income.</div>
+        <div class="rows">
+          <div class="rowx"><b id="range">—</b><small id="range-l">estimated price range</small></div>
+          <div class="rowx"><b id="cash">—</b><small>estimated cash to close: down payment plus closing costs</small></div>
+          <div class="rowx" id="rent-row" hidden><b id="rent-big">—</b><small id="rent-big-l"></small></div>
+        </div>
+      </div>
+      <p class="est">Estimates from the numbers and assumptions you typed. Not an approval, a quote or a promise of any loan.</p>
+
+      <h3>The payment, two ways</h3>
+      <p class="body" id="lens"></p>
+      <div class="flag" id="dti-flag" hidden></div>
+      <p class="src">Lenders look at both numbers, and each lender and loan type has its own limits. One public example for conventional loans: Fannie Mae's rulebook lists 36% as the usual top for the second number, up to 45% with strong credit and savings, and up to 50% when the loan goes through its automated system. <span id="lens-type">Other loan types use other numbers.</span> Ask your lender which apply to you. Source: <a href="https://selling-guide.fanniemae.com/sel/b3-6-02/debt-income-ratios" target="_blank" rel="noopener">Fannie Mae Selling Guide B3-6-02</a>.</p>
+      <p class="body">A lender may approve you for more than this. That is the most they will lend, not what is comfortable to live with.</p>
+
+      <h3>How the price is worked out</h3>
+      <ol class="steps num" id="worked"></ol>
+      <table class="kv" aria-label="Monthly payment at the estimated price">
+        <tbody id="breakdown"></tbody>
+      </table>
+      <div class="note" id="mi-note" hidden></div>
+      <p class="src" id="loan-src"></p>
+      <p class="body" id="repairs"></p>
+
+      <h3>Cash to close</h3>
+      <table class="kv" aria-label="Estimated cash to close">
+        <tbody id="cash-table"></tbody>
+      </table>
+      <div class="flag" id="cash-flag" hidden></div>
+      <div class="note" id="cash-note" hidden></div>
+      <p class="body" id="cash-type" hidden></p>
+      <p class="src">Closing costs here are an estimate of 2% to 5% of the price. They vary by state, lender and loan. A Loan Estimate, the three-page form a lender gives you after you apply, shows the real figure. Source: <a href="https://www.consumerfinance.gov/owning-a-home/prepare/determine-your-down-payment/" target="_blank" rel="noopener">Consumer Financial Protection Bureau</a>.</p>
+
+      <div id="rent-block" hidden>
+        <h3>Your rent, as a house payment</h3>
+        <p class="body" id="rent-line"></p>
+        <p class="body" id="rent-compare"></p>
+      </div>
+
+      <div class="note" id="credit-note"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="next-h" aria-live="polite">
+    <h2 id="next-h">My next 3 steps</h2>
+    <p class="when" id="next-lede">Based on the numbers above.</p>
+    <ol class="steps" id="next"></ol>
+    <p class="links"><a href="/toolkit">All free tools</a></p>
+  </section>
+
+  <section aria-labelledby="dont-h">
+    <h2 id="dont-h">From now until you close: 4 things not to do</h2>
+    <p class="when">Lenders can check your file again right before closing. Each of these can delay a loan or stop it.</p>
+    <ol class="steps">
+      <li><strong>Don't finance a car or furniture.</strong>A new monthly payment raises your debt-to-income. If a lender finds new debt before closing, they may have to run your loan again.</li>
+      <li><strong>Don't change or quit your job.</strong>Lenders confirm your job again shortly before closing. On conventional loans sold to Fannie Mae, that check is within 10 business days before signing for people paid a wage or salary. If a change is coming, tell your lender first.</li>
+      <li><strong>Don't open new credit.</strong>New cards and loans can lower your credit score and raise the rate you are offered.</li>
+      <li><strong>Don't move large amounts of money without a paper trail.</strong>Lenders have to document where large deposits came from. Keep every statement. If family is giving you money, tell your lender and ask what paperwork they need.</li>
+    </ol>
+    <div class="warn">Never hide or relabel anything. Tell your lender the truth about your income, your debts, where your money came from and how you will use the home.</div>
+  </section>
+
+  <section class="alex">
+    <h2>Want a second opinion? It's free.</h2>
+    <p>This plan is yours either way. If you'd like Alex and his team to look at your numbers with you before you start shopping, tell them on the website. If there's a better deal to be had, they'll show you. If there isn't, they'll tell you that too.</p>
+    <a class="cta" href="/?form=open&amp;utm_source=toolkit&amp;utm_medium=game-plan" target="_blank" rel="noopener">Ask Alex's team to take a look</a>
+    <p class="states">No cost and no obligation. Alex D'Hose is a mortgage broker licensed in AL, AZ, CA, CT, FL, HI, ID, MD, MI, NE, ND, OH, OK, OR, PA, TN, TX, VA, WA.</p>
+  </section>
+
+  <div class="actions">
+    <button class="primary" type="button" onclick="window.print()">Print or save my plan as PDF</button>
+    <button type="button" id="reset">Start over</button>
+  </div>
+
+  <footer>
+    <p>Property taxes, insurance, mortgage insurance, closing costs and the rate you are offered depend on the home, the area, the lender, the loan type and your own file. Use this plan to get ready, then ask a lender for a Loan Estimate with real numbers.</p>
+    <p>For education only. Not a loan offer or commitment to lend. Rates, payments, and terms vary by borrower and program and are subject to credit approval. Alex D'Hose, NMLS #2705406, West Capital Lending. Equal Housing Opportunity.</p>
+    <p>Not affiliated with, endorsed by or acting on behalf of HUD, FHA, VA or any government agency. FHA and VA figures on this page come from the public sources linked above and can change.</p>
+    <p>Days 8 and 13 of 30: "The income you actually need to buy" and "If you can afford this rent, you can afford this home." More free tools from <a href="https://www.instagram.com/financingwithalex/" target="_blank" rel="noopener">@financingwithalex</a>.</p>
+  </footer>
+</div>
+
+<script>
+  /* ---------- PURE MATH (no DOM). Tested with node. ---------- */
+  //<pure>
+  const SHARE = 0.28;                 // comfortable house payment as a share of gross income (Day 8 and Day 13 scripts)
+  const CLOSING_LOW = 0.02;           // closing costs, low end, share of price (CFPB: "typically 2-5%")
+  const CLOSING_HIGH = 0.05;          // closing costs, high end
+  const RATE_SWING = 0.5;             // price range = same payment at the rate half a point higher and lower
+  const REPAIR_SHARE = 0.01;          // rule of thumb from the Day 13 script: 1% of the home's value a year
+  const TERM_YEARS = 30;
+
+  function parseNum(v) {
+    const n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.\-]/g, ''));
+    return isFinite(n) ? n : 0;
+  }
+  const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+  const round1000 = v => Math.round(v / 1000) * 1000;
+
+  // Monthly principal + interest for each $1 borrowed.
+  function loanFactor(ratePct, years) {
+    const r = ratePct / 100 / 12, n = years * 12;
+    return r === 0 ? 1 / n : r / (1 - Math.pow(1 + r, -n));
+  }
+  // Hourly pay x hours a week x 52 weeks / 12 months. At 40 hours that is hourly x 2,080 / 12.
+  function hourlyToMonthly(rate, hoursPerWeek) { return rate * hoursPerWeek * 52 / 12; }
+
+  /* Loan programs. Checked 2026-10-04 against: HUD Mortgagee Letter 2023-05 (FHA premiums), HUD Mortgagee Letter 2010-29
+     (FHA credit score and down payment), VA.gov "Funding fee and closing costs" (rates effective April 7, 2023) and
+     Fannie Mae "97% Loan to Value Options". Agencies change these: check them again before each launch. */
+  const MIN_DOWN = { conv: 3, fha: 3.5, va: 0 };   // lowest down payment each program allows, % of price
+  const FHA_UFMIP = 0.0175;                        // FHA upfront premium, share of the amount borrowed, added to the loan
+  const FHA_BASE_SPLIT = 726200;                   // HUD's annual-premium table changes above this amount borrowed
+  // FHA annual premium as a share of the amount borrowed, for a loan term over 15 years.
+  function fhaAnnualMip(baseLoan, ltvPct) {
+    const big = baseLoan > FHA_BASE_SPLIT;
+    return ltvPct > 95 ? (big ? 0.0075 : 0.0055) : (big ? 0.0070 : 0.0050);
+  }
+  // VA funding fee on a purchase loan, as a share of the amount borrowed.
+  function vaFee(downPct, usedBefore, exempt) {
+    if (exempt) return 0;
+    if (downPct >= 10) return 0.0125;
+    if (downPct >= 5) return 0.015;
+    return usedBefore ? 0.033 : 0.0215;
+  }
+  // The fee each program adds to the loan, as a share of the amount borrowed.
+  function financedFee(a) { return a.type === 'fha' ? FHA_UFMIP : a.type === 'va' ? vaFee(a.downPct, a.vaUsed, a.vaExempt) : 0; }
+
+  // Monthly cost of each $1 of price: loan payment on the part you borrow, plus taxes and insurance (and FHA's monthly premium).
+  function costPerDollar(a, bigLoan) {
+    const share = 1 - a.downPct / 100;
+    const mip = a.type === 'fha' ? share * fhaAnnualMip(bigLoan ? FHA_BASE_SPLIT + 1 : 0, 100 - a.downPct) / 12 : 0;
+    return share * (1 + financedFee(a)) * loanFactor(a.ratePct, TERM_YEARS) + mip + a.tiPct / 100 / 12;
+  }
+  function priceFor(payment, a) {
+    const left = payment - a.mi, c = costPerDollar(a, false);
+    if (!(left > 0 && c > 0)) return 0;
+    const price = left / c;
+    return a.type === 'fha' && price * (1 - a.downPct / 100) > FHA_BASE_SPLIT ? left / costPerDollar(a, true) : price;
+  }
+  function paymentAt(price, a) {
+    const base = price * (1 - a.downPct / 100), feeRate = financedFee(a), fee = base * feeRate, loan = base + fee;
+    const mipRate = a.type === 'fha' ? fhaAnnualMip(base, 100 - a.downPct) : 0;
+    const mi = a.type === 'fha' ? base * mipRate / 12 : a.mi;
+    const pi = loan * loanFactor(a.ratePct, TERM_YEARS), ti = price * a.tiPct / 100 / 12;
+    return { base, fee, feeRate, mipRate, loan, pi, ti, mi, total: pi + ti + mi };
+  }
+
+  function plan(inp) {
+    const income = inp.hourly ? hourlyToMonthly(Math.max(inp.hourlyRate, 0), clamp(inp.hoursPerWeek, 0, 100)) : Math.max(inp.income, 0);
+    if (!(income > 0)) return null;
+    const debts = Math.max(inp.debts, 0), savings = Math.max(inp.savings, 0), rent = Math.max(inp.rent || 0, 0);
+    const type = inp.loanType === 'fha' || inp.loanType === 'va' ? inp.loanType : 'conv';
+    const typedDown = clamp(inp.downPct, 0, 100);
+    // The mortgage insurance box is for conventional loans only: FHA's is worked out, VA has none.
+    const a = { type, downPct: Math.max(typedDown, MIN_DOWN[type]), ratePct: clamp(inp.ratePct, 0, 25), tiPct: clamp(inp.tiPct, 0, 10),
+      mi: type === 'conv' ? Math.max(inp.mi || 0, 0) : 0, vaUsed: !!inp.vaUsed, vaExempt: !!inp.vaExempt };
+    const comfortable = income * SHARE;
+    const p = { income, debts, savings, rent, a, comfortable, type, downRaised: typedDown < MIN_DOWN[type] };
+    p.dtiTotal = (comfortable + debts) / income * 100;
+    p.at36 = income * 0.36 - debts;                                   // house payment that keeps the total at 36%
+
+    p.priceExact = priceFor(comfortable, a);
+    p.price = round1000(p.priceExact);
+    p.priceLow = round1000(priceFor(comfortable, Object.assign({}, a, { ratePct: a.ratePct + RATE_SWING })));
+    p.priceHigh = round1000(priceFor(comfortable, Object.assign({}, a, { ratePct: Math.max(a.ratePct - RATE_SWING, 0) })));
+    p.pay = paymentAt(p.price, a);
+    p.perThousand = costPerDollar(a, type === 'fha' && p.pay.base > FHA_BASE_SPLIT) * 1000;
+    p.perThousandLoan = (1 - a.downPct / 100) * (1 + p.pay.feeRate) * loanFactor(a.ratePct, TERM_YEARS) * 1000;
+    p.perThousandMI = (1 - a.downPct / 100) * p.pay.mipRate / 12 * 1000;
+    p.perThousandTI = a.tiPct / 100 / 12 * 1000;
+    p.repairs = p.price * REPAIR_SHARE / 12;
+    p.miLikely = type === 'conv' && a.downPct < 20;
+
+    p.down = p.price * a.downPct / 100;
+    p.closeLow = p.price * CLOSING_LOW; p.closeHigh = p.price * CLOSING_HIGH;
+    p.cashLow = p.down + p.closeLow; p.cashHigh = p.down + p.closeHigh;
+    p.cashState = p.price <= 0 ? 'none' : savings < p.cashLow ? 'gap' : savings < p.cashHigh ? 'tight' : 'covered';
+    p.gapLow = Math.max(p.cashLow - savings, 0); p.gapHigh = Math.max(p.cashHigh - savings, 0);
+    p.spare = Math.max(savings - p.cashHigh, 0);
+
+    if (rent > 0) {
+      p.rentPrice = round1000(priceFor(rent, a));
+      p.rentShare = rent / income * 100;
+      p.rentRepairs = p.rentPrice * REPAIR_SHARE / 12;
+    }
+    p.steps = nextSteps(p);
+    return p;
+  }
+
+  // Which three steps to show, in order. Returns keys; the page turns them into words and links.
+  function nextSteps(p) {
+    const s = [];
+    if (p.dtiTotal > 50) s.push('debts');
+    if (p.cashState === 'gap') s.push('gap');
+    s.push(p.cashState === 'tight' ? 'lenders-tight' : 'lenders');
+    if (p.cashState === 'gap' || p.cashState === 'tight') s.push('credit-costs');
+    s.push('tour');
+    if (s.indexOf('credit-costs') < 0) s.push('credit-offer');
+    return s.slice(0, 3);
+  }
+  //</pure>
+
+  /* ---------- PAGE ---------- */
+  const KEY = 'fwa-game-plan-v1';
+  const DEFAULTS = { income: '6,067', hourlyRate: '35', hoursPerWeek: '40', debts: '400', savings: '30,000', rent: '', credit: '', loanType: 'conv', vaUsed: false, vaExempt: false, downPct: '10', rate: '6.5', tiPct: '1.5', mi: '0', hourly: false };
+  // Down payment each loan type opens on. Conventional keeps the Day 8 example.
+  const TYPE_DOWN = { conv: '10', fha: '3.5', va: '0' };
+  const LOAN_LABEL = { conv: 'Conventional', fha: 'FHA', va: 'VA' };
+  const LOAN_NOTE = {
+    conv: 'Not backed by a government agency. Some conventional loans start at 3% down, such as Fannie Mae\'s 97% option for first-time buyers. Under 20% down, expect mortgage insurance.',
+    fha: 'Insured by the Federal Housing Administration. Down payments start at 3.5% with a credit score of 580 or higher, or 10% with a score of 500 to 579. Lenders can set higher minimums of their own.',
+    va: 'For eligible veterans, service members and some surviving spouses. You need a Certificate of Eligibility from the VA. No down payment is required as long as the price is not above the appraised value.'
+  };
+  const LOAN_LIMITS = {
+    conv: 'Other loan types use other numbers.',
+    fha: 'FHA loans follow HUD\'s rules instead of Fannie Mae\'s, and lenders add their own.',
+    va: 'VA loans follow VA\'s rules instead of Fannie Mae\'s. VA also looks at residual income, which is what you have left each month after your major bills, and lenders add their own rules.'
+  };
+  const LOAN_SRC = {
+    conv: 'Where the loan facts come from: <a href="https://singlefamily.fanniemae.com/originating-underwriting/mortgage-products/97-loan-value-options" target="_blank" rel="noopener">Fannie Mae, 97% loan-to-value options</a> and <a href="https://www.consumerfinance.gov/ask-cfpb/when-can-i-remove-private-mortgage-insurance-pmi-from-my-loan-en-202/" target="_blank" rel="noopener">Consumer Financial Protection Bureau, removing PMI</a>.',
+    fha: 'Where the loan facts come from: <a href="https://www.hud.gov/sites/dfiles/OCHCO/documents/2023-05hsgml.pdf" target="_blank" rel="noopener">HUD Mortgagee Letter 2023-05</a> (insurance premiums) and <a href="https://www.hud.gov/sites/documents/10-29ml.pdf" target="_blank" rel="noopener">HUD Mortgagee Letter 2010-29</a> (credit score and down payment). FHA also caps the loan size by county. Ask your lender for the limit where you are buying.',
+    va: 'Where the loan facts come from: <a href="https://www.va.gov/housing-assistance/home-loans/loan-types/purchase-loan/" target="_blank" rel="noopener">VA.gov, purchase loan</a> and <a href="https://www.va.gov/housing-assistance/home-loans/funding-fee-and-closing-costs/" target="_blank" rel="noopener">VA.gov, funding fee and closing costs</a>.'
+  };
+  const $ = id => document.getElementById(id);
+  const money = n => '$' + Math.round(n).toLocaleString('en-US');
+  const cents = n => '$' + n.toFixed(2);
+  const pct = n => (Math.round(n * 100) / 100) + '%';
+  const num = id => parseNum($(id).value);
+  const fields = [...document.querySelectorAll('[data-save]')];
+
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { state = {}; }
+  let edited = !!state.edited;
+  fields.forEach(f => {
+    if (state.v && f.id in state.v) { if (f.type === 'checkbox') f.checked = !!state.v[f.id]; else f.value = state.v[f.id]; }
+  });
+  function persist() {
+    const v = {}; fields.forEach(f => v[f.id] = f.type === 'checkbox' ? f.checked : f.value);
+    try { localStorage.setItem(KEY, JSON.stringify({ v, edited })); } catch (e) {}
+  }
+
+  const row = (label, value, cls) => '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td>' + label + '</td><td>' + value + '</td></tr>';
+
+  const STEP_TEXT = {
+    debts: p => '<strong>Look at your monthly debts first.</strong>With a ' + money(p.comfortable) + ' house payment, your total would be ' + Math.round(p.dtiTotal) + '% of your income. Ask a lender how they would count your debts before you shop at this price.',
+    gap: p => '<strong>Close the cash gap: about ' + money(p.gapLow) + '.</strong>That is how far your savings are from the low estimate. You can save toward it, try a smaller down payment above and see what changes, or ask a lender about down payment help in your state.',
+    'lenders-tight': p => '<strong>Get a Loan Estimate from two or three lenders.</strong>Your savings cover the low estimate but not the high one. Real closing costs from a Loan Estimate will tell you which side you are on.',
+    lenders: p => '<strong>Get a Loan Estimate from two or three lenders.</strong>Same day, same loan type, so you can put them side by side.',
+    'credit-costs': p => '<strong>Ask about a seller credit.</strong>A credit from the seller can go toward your closing costs. It cannot be your down payment, and loan programs cap how much.',
+    tour: p => '<strong>Tour homes around ' + money(p.priceLow) + ' to ' + money(p.priceHigh) + '.</strong>Check the real property tax on each listing against your assumption above.',
+    'credit-offer': p => '<strong>Before you make an offer, ask about a seller credit.</strong>It can do more for your monthly payment than the same amount off the price.'
+  };
+
+  function render() {
+    const hourly = $('hourly').checked;
+    $('f-income').hidden = hourly; $('f-hourly').hidden = !hourly; $('f-hours').hidden = !hourly;
+    $('example-note').hidden = edited;
+
+    const type = $('loanType').value === 'fha' || $('loanType').value === 'va' ? $('loanType').value : 'conv';
+    document.querySelectorAll('[data-loan]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.loan === type)));
+    $('f-mi').hidden = type !== 'conv'; $('f-va').hidden = type !== 'va';
+    $('loan-note').textContent = LOAN_NOTE[type];
+    $('lens-type').textContent = LOAN_LIMITS[type];
+    $('loan-src').innerHTML = LOAN_SRC[type];
+
+    const hrs = clamp(num('hoursPerWeek'), 0, 100), hr = Math.max(num('hourlyRate'), 0);
+    $('hourly-math').hidden = !hourly;
+    $('hourly-math').textContent = hourly ? cents(hr).replace(/\.00$/, '') + ' × ' + hrs + ' hours × 52 weeks = ' + money(hr * hrs * 52) + ' a year, or ' + money(hourlyToMonthly(hr, hrs)) + ' a month.' : '';
+
+    const p = plan({
+      hourly, income: num('income'), hourlyRate: num('hourlyRate'), hoursPerWeek: num('hoursPerWeek'),
+      debts: num('debts'), savings: num('savings'), rent: num('rent'),
+      downPct: num('downPct'), ratePct: num('rate'), tiPct: num('tiPct'), mi: num('mi'),
+      loanType: type, vaUsed: $('vaUsed').checked, vaExempt: $('vaExempt').checked
+    });
+    $('results').hidden = !p; $('zero-note').hidden = !!p;
+    $('down-note').hidden = !(p && p.downRaised);
+    if (p && p.downRaised) $('down-note').textContent = LOAN_LABEL[type] + ' loans start at ' + pct(MIN_DOWN[type]) + ' down, so this plan uses ' + pct(MIN_DOWN[type]) + '.';
+    if (!p) { $('next').innerHTML = ''; $('next-lede').textContent = 'Type your income above to see your steps.'; return; }
+    const a = p.a;
+
+    $('comfy').textContent = money(p.comfortable);
+    const hasPrice = p.price > 0;
+    $('range').textContent = hasPrice ? money(p.priceLow) + ' to ' + money(p.priceHigh) : '—';
+    $('range-l').textContent = hasPrice ? 'estimated price range. About ' + money(p.price) + ' at ' + pct(a.ratePct) + '; the range is half a point higher or lower.' : 'No price fits: the mortgage insurance you typed is more than the payment.';
+    $('cash').textContent = hasPrice ? money(p.cashLow) + ' to ' + money(p.cashHigh) : '—';
+
+    // two lenses
+    $('lens').textContent = 'House payment alone: ' + money(p.comfortable) + ' is 28% of your ' + money(p.income) + ' monthly income. House payment plus your ' + money(p.debts) + ' in other monthly debts: ' + money(p.comfortable + p.debts) + ', which is ' + Math.round(p.dtiTotal) + '% of your income. Lenders call that second number your debt-to-income ratio.';
+    const f = $('dti-flag');
+    if (p.dtiTotal > 36) {
+      f.hidden = false;
+      f.textContent = 'Your total is ' + Math.round(p.dtiTotal) + '%, ' + (p.dtiTotal > 50 ? 'above every figure in the example below' : 'above the 36% in the example below') + '. A lender may set your payment lower than ' + money(p.comfortable) + '.' +
+        (p.at36 > 0 ? ' To keep the total at 36%, the house payment would be about ' + money(p.at36) + '.' : '');
+    } else f.hidden = true;
+
+    // worked steps
+    let w = '';
+    w += '<li>' + money(p.income) + ' a month × 28% = <b>' + money(p.comfortable) + '</b> for the whole house payment.</li>';
+    if (a.mi > 0) w += '<li>Take out the ' + money(a.mi) + ' of mortgage insurance you typed. That leaves ' + money(Math.max(p.comfortable - a.mi, 0)) + ' for the loan, taxes and insurance.</li>';
+    const borrowed = money(1000 * (1 - a.downPct / 100)), feePct = pct(p.pay.feeRate * 100);
+    if (p.type === 'fha') w += '<li>Each $1,000 of price costs about <b>' + cents(p.perThousand) + '</b> a month: ' + cents(p.perThousandLoan) + ' for the loan (you borrow ' + borrowed + ' of it, FHA adds its ' + feePct + ' upfront insurance to the loan, and you pay it back at ' + pct(a.ratePct) + ' over 30 years), ' + cents(p.perThousandMI) + ' for FHA\'s monthly insurance (' + pct(p.pay.mipRate * 100) + ' of what you borrow, each year), plus ' + cents(p.perThousandTI) + ' for taxes and insurance (' + pct(a.tiPct) + ' a year).</li>';
+    else if (p.type === 'va') w += '<li>Each $1,000 of price costs about <b>' + cents(p.perThousand) + '</b> a month: ' + cents(p.perThousandLoan) + ' for the loan (you borrow ' + borrowed + ' of it, ' + (p.pay.feeRate > 0 ? 'the ' + feePct + ' VA funding fee is added to the loan, and you pay it back at ' + pct(a.ratePct) + ' over 30 years' : 'with no funding fee, at ' + pct(a.ratePct) + ' for 30 years') + ') plus ' + cents(p.perThousandTI) + ' for taxes and insurance (' + pct(a.tiPct) + ' a year).</li>';
+    else w += '<li>Each $1,000 of price costs about <b>' + cents(p.perThousand) + '</b> a month: ' + cents(p.perThousandLoan) + ' for the loan (you borrow ' + borrowed + ' of it at ' + pct(a.ratePct) + ' for 30 years) plus ' + cents(p.perThousandTI) + ' for taxes and insurance (' + pct(a.tiPct) + ' a year).</li>';
+    w += '<li>' + money(Math.max(p.comfortable - a.mi, 0)) + ' ÷ ' + cents(p.perThousand) + ' × $1,000 = about <b>' + money(p.price) + '</b>.</li>';
+    w += '<li>Rates move. The same payment at ' + pct(a.ratePct + RATE_SWING) + ' is about ' + money(p.priceLow) + ', and at ' + pct(Math.max(a.ratePct - RATE_SWING, 0)) + ' about ' + money(p.priceHigh) + '. That is your range.</li>';
+    $('worked').innerHTML = w;
+    const feeRow = p.type === 'fha' ? row('FHA upfront insurance, added to the loan (' + feePct + ')', money(p.pay.fee))
+      : p.type === 'va' ? row('VA funding fee, added to the loan' + (p.pay.feeRate > 0 ? ' (' + feePct + ')' : ''), p.pay.feeRate > 0 ? money(p.pay.fee) : '$0')
+      : '';
+    const miRow = p.type === 'fha' ? row('FHA monthly insurance (' + pct(p.pay.mipRate * 100) + ' a year)', money(p.pay.mi))
+      : p.type === 'va' ? row('Mortgage insurance', 'none on a VA loan')
+      : row('Mortgage insurance', a.mi > 0 ? money(a.mi) : (p.miLikely ? 'not included' : '$0'));
+    $('breakdown').innerHTML =
+      row('Price', money(p.price)) +
+      row('Down payment (' + pct(a.downPct) + ')', money(p.down)) +
+      feeRow +
+      row('Loan', money(p.pay.loan)) +
+      row('Loan payment (principal + interest)', money(p.pay.pi)) +
+      row('Property tax + insurance', money(p.pay.ti)) +
+      miRow +
+      row('Monthly payment at that price', 'about ' + money(p.pay.total), 'total');
+    const mn = $('mi-note');
+    mn.hidden = !(p.miLikely || p.type !== 'conv');
+    if (p.type === 'fha') mn.textContent = 'FHA loans carry mortgage insurance at any down payment. There is an upfront amount, ' + feePct + ' of what you borrow, which is usually added to the loan as it is here. There is also a monthly amount, which is in the payment above. ' +
+      (a.downPct < 10 ? 'With less than 10% down, the monthly part stays for the life of the loan.' : 'With 10% or more down, the monthly part lasts 11 years.');
+    else if (p.type === 'va') mn.textContent = 'VA loans have no monthly mortgage insurance. ' + (a.vaExempt
+      ? 'Most borrowers pay a one-time funding fee. You ticked that you receive VA disability compensation, so it is $0 here. Your Certificate of Eligibility will confirm it.'
+      : 'Most borrowers pay a one-time funding fee instead, which can be added to the loan as it is here. It is ' + feePct + ': the rate ' + (a.downPct >= 10 ? 'with 10% or more down' : a.downPct >= 5 ? 'with 5% or more down' : (a.vaUsed ? 'after a first VA loan' : 'on a first VA loan') + ' with less than 5% down') + '. You do not pay it if you receive VA disability compensation, and in a few other cases listed on VA.gov.');
+    else mn.textContent = a.mi > 0
+      ? 'Your down payment is under 20%, so mortgage insurance usually applies. It protects the lender, not you, and it adds to your payment. This plan uses the ' + money(a.mi) + ' a month you typed. Ask your lender to confirm it.'
+      : 'Your down payment is under 20%, so mortgage insurance usually applies. It protects the lender, not you, and it adds to your payment. It is not in these numbers. Ask your lender for the monthly amount, type it in above, and the price will adjust.';
+    $('repairs').textContent = 'One more line for your budget: repairs. A common rule of thumb is about 1% of the home\'s value a year. On ' + money(p.price) + ' that is about ' + money(p.repairs) + ' a month, on top of the payment.';
+
+    // cash to close
+    $('cash-table').innerHTML =
+      row('Down payment (' + pct(a.downPct) + ' of ' + money(p.price) + ')', money(p.down)) +
+      row('Closing costs (estimated 2% to 5%)', money(p.closeLow) + ' to ' + money(p.closeHigh)) +
+      row('Cash to close', money(p.cashLow) + ' to ' + money(p.cashHigh), 'total') +
+      row('Your savings', money(p.savings));
+    const cf = $('cash-flag'), cn = $('cash-note');
+    cf.hidden = p.cashState !== 'gap'; cn.hidden = p.cashState === 'gap' || p.cashState === 'none';
+    if (p.cashState === 'gap') cf.textContent = 'There is a gap. Your savings are about ' + money(p.gapLow) + ' short of the low estimate and ' + money(p.gapHigh) + ' short of the high one.';
+    if (p.cashState === 'tight') cn.textContent = 'Close. Your savings cover the low estimate, but they are about ' + money(p.gapHigh) + ' short of the high one. A Loan Estimate will show the real figure.';
+    if (p.cashState === 'covered') cn.textContent = 'Your savings cover the high estimate, with about ' + money(p.spare) + ' left over. Keep a cushion for moving, repairs and the first months in the house.';
+    const ct = $('cash-type');
+    ct.hidden = !(p.pay.fee > 0);
+    if (p.pay.fee > 0) ct.textContent = (p.type === 'fha' ? 'The FHA upfront insurance' : 'The VA funding fee') + ' is added to the loan in this plan, so it is not in your cash to close.' + (a.downPct === 0 ? ' With no down payment, your cash to close is the closing costs.' : '');
+
+    // rent
+    $('rent-block').hidden = !(p.rent > 0); $('rent-row').hidden = !(p.rent > 0);
+    if (p.rent > 0) {
+      $('rent-big').textContent = 'About ' + money(p.rentPrice);
+      $('rent-big-l').textContent = 'what a house payment the size of your ' + money(p.rent) + ' rent could support with these assumptions' + (a.mi > 0 ? '' : (p.miLikely ? ', before mortgage insurance' : '')) + '. Example, not an approval.';
+      $('rent-line').textContent = 'Example: with the assumptions above (' + LOAN_LABEL[p.type] + ' loan, ' + pct(a.downPct) + ' down, ' + pct(a.ratePct) + ', taxes and insurance ' + pct(a.tiPct) + ' a year), a house payment the size of your ' + money(p.rent) + ' rent could support roughly a ' + money(p.rentPrice) + ' house' + (a.mi > 0 ? ', after the mortgage insurance you typed.' : (p.miLikely ? ', before mortgage insurance.' : '.')) + ' Rent is the whole cost. A house is not: repairs on that house at 1% a year would be about ' + money(p.rentRepairs) + ' a month more.';
+      const d = p.rent - p.comfortable;
+      $('rent-compare').textContent = 'Your rent is ' + Math.round(p.rentShare) + '% of your income. ' +
+        (d > 0.5 ? 'That is ' + money(d) + ' a month more than the 28% payment above, so a house payment the size of your rent would be a bigger stretch than this plan.' :
+         d < -0.5 ? 'That is ' + money(-d) + ' a month less than the 28% payment above, so this plan would cost more each month than you pay now.' :
+         'That is the same as the 28% payment above.');
+    }
+
+    const cr = $('credit').value;
+    $('credit-note').textContent = (cr ? 'You picked ' + cr + '. ' : '') + 'Your credit score does not change the math on this page. It changes the rate and the mortgage insurance a lender quotes you. A higher score usually gets a better rate, and a better rate means more house for the same payment. Ask a lender what rate goes with your score, then type it in above.' + (p.type === 'fha' ? ' On an FHA loan, a score of 500 to 579 needs at least 10% down.' : '');
+
+    $('next-lede').textContent = 'Based on the numbers above.';
+    $('next').innerHTML = p.steps.map(k => '<li>' + STEP_TEXT[k](p) + '</li>').join('');
+  }
+
+  fields.forEach(f => f.addEventListener(f.type === 'checkbox' || f.tagName === 'SELECT' ? 'change' : 'input', () => { edited = true; persist(); render(); }));
+  // Picking a loan type also sets the down payment that type usually starts from.
+  document.querySelectorAll('[data-loan]').forEach(b => b.addEventListener('click', () => {
+    if ($('loanType').value === b.dataset.loan) return;
+    $('loanType').value = b.dataset.loan;
+    $('downPct').value = TYPE_DOWN[b.dataset.loan];
+    persist(); render();
+  }));
+  $('reset').addEventListener('click', () => {
+    if (!confirm('Clear your numbers and go back to the example?')) return;
+    fields.forEach(f => { if (f.type === 'checkbox') f.checked = DEFAULTS[f.id]; else f.value = DEFAULTS[f.id]; });
+    edited = false;
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    render();
+  });
+  render();
+</script>
+</body>
+</html>
