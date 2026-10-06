@@ -39,6 +39,14 @@
     {
       "source": "/family",
       "destination": "/toolkit/family-mortgage-sheet"
+    },
+    {
+      "source": "/calculator",
+      "destination": "/toolkit/homebuyer-calculator"
+    },
+    {
+      "source": "/plan",
+      "destination": "/toolkit/homebuyer-calculator"
     }
   ]
 }
