@@ -535,7 +535,7 @@ const FSTEPS = [
   { key:"credit_score", kicker:"Step 6", q:"What's your estimated credit score?",
     opts:["Below 500","500 to 580","580 to 620","620 to 700","700+"] },
   { key:"contact", kicker:"Last step", q:"Where should Alex send your options?",
-    sub:"No obligation. Your info is used only to prepare your financing options.", contact:true }
+    sub:"No obligation. Alex or a member of his team will call you to go over your options.", contact:true }
 ];
 // Purchase gets its own questions after step 1; every other choice keeps the original seven.
 const PURCHASE_STEPS = [
@@ -721,7 +721,7 @@ function fdone(){
   document.getElementById('funnelCard').innerHTML =
     '<div class="fslide fdone"><div class="fcheck"></div>'
     + '<h3 class="fq">You\'re all set.</h3>'
-    + '<div class="fsub">Thanks'+(first?', '+first.replace(/[&<>"]/g,''):'')+'. Alexandre will review your answers and reach out shortly with your financing options.</div>'
+    + '<div class="fsub">Thanks'+(first?', '+first.replace(/[&<>"]/g,''):'')+'. Alex or a member of his team will review your answers and call you shortly with your financing options.</div>'
     + (BOOKING_URL?'<a class="fcta" style="display:inline-block;text-decoration:none;margin-top:8px" href="'+BOOKING_URL+'" target="_blank" rel="noopener">Book a call now</a>':'<button class="fcta" onclick="closeFunnel()" style="margin-top:8px">Close</button>')
     + '</div>';
 }
