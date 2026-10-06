@@ -194,7 +194,7 @@ section[id]{scroll-margin-top:68px}
 @media(max-width:640px){.footer-cols{gap:36px}}
 
 /* ===== funnel modal ===== */
-.funnel-overlay{position:fixed;inset:0;z-index:100;background:rgba(15,18,32,.86);
+.funnel-overlay{position:fixed;inset:0;z-index:100;background:linear-gradient(180deg,#0b1022 0%,#0f1730 100%);
   display:none;align-items:center;justify-content:center;padding:20px}
 .funnel-overlay.open{display:flex}
 .funnel-modal{position:relative;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;
@@ -224,6 +224,16 @@ section[id]{scroll-margin-top:68px}
 .fopt .ftick{margin-left:auto;width:21px;height:21px;border-radius:99px;border:1.5px solid var(--line-inv);flex-shrink:0;display:grid;place-items:center;transition:all .16s}
 .fopt.sel .ftick{background:var(--peri-lt);border-color:var(--peri-lt)}
 .fopt.sel .ftick::after{content:"";width:5px;height:10px;border:solid var(--ink);border-width:0 2.5px 2.5px 0;transform:rotate(45deg);margin-top:-2px}
+.fchips{display:grid;grid-template-columns:1fr;gap:8px;margin:4px 0 8px}
+.fchip{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 14px;border-radius:12px;border:1px solid var(--line-inv);background:rgba(247,245,240,.03);color:#fff;font-family:inherit;font-size:14.5px;font-weight:500;line-height:1.25;cursor:pointer;transition:all .16s}
+.fchip small{display:block;font-size:12px;font-weight:400;color:var(--tx-inv-soft);margin-top:2px;line-height:1.3}
+.fchip .fbox{flex:none;width:19px;height:19px;border-radius:5px;border:1.5px solid var(--line-inv);display:grid;place-items:center;transition:all .16s}
+.fchip.sel{border-color:var(--peri-lt);background:rgba(228,217,255,.16)}
+.fchip.sel .fbox{background:var(--peri-lt);border-color:var(--peri-lt)}
+.fchip.sel .fbox::after{content:"";width:4px;height:9px;border:solid var(--ink);border-width:0 2.2px 2.2px 0;transform:rotate(45deg);margin-top:-2px}
+.fconsent{font-size:11px;line-height:1.5;color:rgba(247,245,240,.62);margin:14px 2px 0}
+.fconsent a{color:rgba(247,245,240,.85);text-decoration:underline}
+.fmini{font-size:12.5px;color:var(--tx-inv-soft);font-weight:500;margin:14px 0 8px}
 .ffield{margin-bottom:13px}
 .ffield label{display:block;font-size:12.5px;color:var(--tx-inv-soft);margin-bottom:6px;font-weight:500}
 .ffield .fopt-tag{color:var(--peri-lt);font-weight:600}
@@ -446,6 +456,7 @@ section[id]{scroll-margin-top:68px}
       NMLS #2705406 · Company NMLS #1566096 · Cal. DRE #02022356 · Licensed in AL, AZ, CA, CT, FL, HI, ID, MD, MI, NE, ND, OH, OK, OR, PA, TN, TX, VA, WA<br><br>
       This is not a commitment to lend. All loans subject to credit approval, income verification, and property valuation. Rates and terms subject to change. Equal Housing Opportunity.
     </div>
+      <div style="margin-top:10px;font-size:13px"><a href="/privacy" style="color:inherit;text-decoration:underline">Privacy Policy</a> · <a href="/terms" style="color:inherit;text-decoration:underline">Terms of Use</a> · <a href="/sms-terms" style="color:inherit;text-decoration:underline">SMS Terms</a> · <a href="https://www.nmlsconsumeraccess.org/" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">NMLS Consumer Access</a></div>
   </div>
 </footer>
 
@@ -526,24 +537,96 @@ const FSTEPS = [
   { key:"contact", kicker:"Last step", q:"Where should Alex send your options?",
     sub:"No obligation. Your info is used only to prepare your financing options.", contact:true }
 ];
+// Purchase gets its own questions after step 1; every other choice keeps the original seven.
+const PURCHASE_STEPS = [
+  { key:"under_contract", q:"Are you currently under contract?", opts:["Yes","No"] },
+  { key:"occupancy", q:"How will you use this property?", opts:["Primary home, I'm moving in","Second home","Investment property"] },
+  { key:"property_address", q:"What's the property address?", sub:"No address yet? The city and state is fine.", input:{ placeholder:"123 Main St, City, State", mode:"text" } },
+  { key:"purchase_price", q:"What is the purchase price?", sub:"A rough number is fine.", input:{ prefix:"$", placeholder:"400,000", mode:"numeric" } },
+  { key:"down_payment", q:"How much are you putting down?", sub:"A dollar amount or a percent.", input:{ placeholder:"$20,000 or 5%", mode:"text" } },
+  { key:"annual_income", q:"What's your yearly income before taxes?", sub:"Everyone on the loan, added together. A rough number is fine.",
+    input:{ prefix:"$", placeholder:"120,000", mode:"numeric" },
+    types:{ key:"income_type", label:"How is it earned? Check all that apply.", noIncome:"I do not earn income",
+      opts:[ {v:"W-2 / pay stubs"}, {v:"Self-employed", note:"using bank statements to qualify"}, {v:"I'm retired"}, {v:"I do not earn income"} ] },
+    alt:{ when:function(){ return true; },
+      label:"Let the property's rent qualify instead (investment property)",
+      note:"For buyers who would rather not show personal income or tax returns. The lease, or the market rent on a purchase, qualifies the loan.",
+      value:"Qualify on the property's rent, not personal income" } },
+  { key:"purchase_timeline", q:"When would you like to purchase?", opts:["In the next 2 weeks","In the next month","1 to 3 months","3 to 6 months","More than 6 months","Not sure yet"] }
+];
 const fanswers = {};
+function fsteps(){
+  const list = fanswers.looking_for==="Purchase" ? [FSTEPS[0]].concat(PURCHASE_STEPS, [FSTEPS[5], FSTEPS[6]]) : FSTEPS;
+  return list.map(function(st,i){ return Object.assign({}, st, { kicker: st.contact ? "Last step" : "Step "+(i+1) }); });
+}
+function frenderInput(s){
+  const card = document.getElementById('funnelCard');
+  card.innerHTML =
+    '<div class="fslide">'
+    + '<div class="fkicker">'+s.kicker+'</div>'
+    + '<h3 class="fq">'+s.q+'</h3>'
+    + '<div class="fsub">'+(s.sub||'')+'</div>'
+    + '<div class="ffield" style="position:relative">'+(s.input.prefix?'<span style="position:absolute;left:15px;top:13px;color:rgba(247,245,240,.6);font-size:17px">'+s.input.prefix+'</span>':'')
+    + '<input id="ff_short" type="text" inputmode="'+(s.input.mode==="numeric"?"numeric":"text")+'" placeholder="'+s.input.placeholder+'" style="'+(s.input.prefix?'padding-left:30px;':'')+'font-size:17px"></div>'
+    + (s.types ? '<div class="fmini">'+s.types.label+'</div><div class="fchips">'
+        + s.types.opts.map(function(o){ return '<button type="button" class="fchip" data-v="'+encodeURIComponent(o.v)+'"><span class="fbox"></span><span>'+o.v+(o.note?'<small>'+o.note+'</small>':'')+'</span></button>'; }).join('')
+        + '</div>' : '')
+    + '<div class="fnav"><button class="fback" id="fback">Back</button><button class="fcta" id="fnextbtn">Next</button></div>'
+    + '<div class="ferr" id="ferr"></div>'
+    + (s.alt && s.alt.when(fanswers) ? '<div style="display:flex;align-items:center;gap:12px;margin:18px 0 12px;color:rgba(247,245,240,.5);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase"><span style="flex:1;height:1px;background:rgba(247,245,240,.18)"></span>or<span style="flex:1;height:1px;background:rgba(247,245,240,.18)"></span></div>'
+        + '<button class="fopt" id="faltbtn"><span>'+s.alt.label+'</span><span class="ftick"></span></button>'
+        + '<div class="fsub" style="margin:10px 2px 0;font-size:13px">'+s.alt.note+'</div>' : '')
+    + '</div>';
+  const alt=document.getElementById('faltbtn'); if(alt) alt.onclick=function(){ fanswers[s.key]=s.alt.value; alt.classList.add('sel'); setTimeout(fnext,180); };
+  const inp=document.getElementById('ff_short'); if(fanswers[s.key] && !(s.alt && fanswers[s.key]===s.alt.value)) inp.value=fanswers[s.key];
+  document.getElementById('fback').onclick=fprev;
+  const chips=[].slice.call(card.querySelectorAll('.fchip'));
+  const picked=function(){ return chips.filter(function(c){ return c.classList.contains('sel'); }).map(function(c){ return decodeURIComponent(c.dataset.v); }); };
+  if(s.types){
+    const saved=(fanswers[s.types.key]||'').split(', ');
+    chips.forEach(function(c){
+      if(saved.indexOf(decodeURIComponent(c.dataset.v))>=0) c.classList.add('sel');
+      c.onclick=function(){
+        const v=decodeURIComponent(c.dataset.v), on=!c.classList.contains('sel');
+        // "I do not earn income" stands alone; picking anything else clears it
+        if(on && v===s.types.noIncome) chips.forEach(function(x){ x.classList.remove('sel'); });
+        if(on && v!==s.types.noIncome) chips.forEach(function(x){ if(decodeURIComponent(x.dataset.v)===s.types.noIncome) x.classList.remove('sel'); });
+        c.classList.toggle('sel', on);
+        document.getElementById('ferr').style.display='none';
+      };
+    });
+  }
+  const go=function(){
+    const v=inp.value.trim(), t=s.types?picked():[];
+    const none=s.types && t.indexOf(s.types.noIncome)>=0;
+    if(s.types && !t.length) return fshowErr("Please check how the income is earned.");
+    if(!v && !none) return fshowErr("Please type an answer.");
+    fanswers[s.key]=v; if(s.types) fanswers[s.types.key]=t.join(', ');
+    fnext();
+  };
+  document.getElementById('fnextbtn').onclick=go; inp.onkeydown=function(e){ if(e.key==="Enter") go(); };
+}
 let fidx = 0;
 
 function openFunnel(e){ if(e) e.preventDefault(); fidx=0; document.getElementById('funnelOverlay').classList.add('open'); document.body.style.overflow='hidden'; frender(); }
 function closeFunnel(){ document.getElementById('funnelOverlay').classList.remove('open'); document.body.style.overflow=''; }
 
 // Open the form straight away when the link carries ?form=open (used by the toolkit pages)
-if(new URLSearchParams(window.location.search).get('form')==='open'){ window.addEventListener('load',function(){ openFunnel(); }); }
+if(new URLSearchParams(window.location.search).get('form')==='open'){ window.addEventListener('load',function(){
+  openFunnel();
+  if((new URLSearchParams(window.location.search).get('looking_for')||'').toLowerCase()==='purchase'){ fanswers.looking_for='Purchase'; fidx=1; frender(); }
+}); }
 
 function fprogress(){
-  document.getElementById('funnelBarFill').style.width = ((fidx)/(FSTEPS.length-1)*100)+"%";
-  document.getElementById('funnelStep').textContent = (fidx+1)+" / "+FSTEPS.length;
+  document.getElementById('funnelBarFill').style.width = ((fidx)/(fsteps().length-1)*100)+"%";
+  document.getElementById('funnelStep').textContent = fidx===0 ? "" : (fidx+1)+" / "+fsteps().length;
 }
 function frender(){
   fprogress();
-  const s = FSTEPS[fidx];
+  const s = fsteps()[fidx];
   const card = document.getElementById('funnelCard');
   if(s.contact){ frenderContact(s); return; }
+  if(s.input){ frenderInput(s); return; }
   card.innerHTML =
     '<div class="fslide">'
     + '<div class="fkicker">'+s.kicker+'</div>'
@@ -573,9 +656,10 @@ function frenderContact(s){
     + '<div class="ffield"><label>Full name</label><input id="ff_name" type="text" placeholder="Jane Smith" autocomplete="name"></div>'
     + '<div class="ffield"><label>Email</label><input id="ff_email" type="email" placeholder="jane@email.com" inputmode="email"></div>'
     + '<div class="ffield"><label>Phone number</label><input id="ff_phone" type="tel" placeholder="(555) 000-0000" inputmode="tel"></div>'
-    + '<div class="ffield"><label>Property address <span class="fopt-tag">optional, for a faster response</span></label><input id="ff_addr" type="text" placeholder="123 Main St, City, State"></div>'
+    + (fanswers.looking_for==="Purchase" ? '' : '<div class="ffield"><label>Property address <span class="fopt-tag">optional, for a faster response</span></label><input id="ff_addr" type="text" placeholder="123 Main St, City, State"></div>')
     + '<div class="fnav"><button class="fback" id="fback">Back</button><button class="fcta" id="fsubmit">See my options</button></div>'
     + '<div class="ferr" id="ferr"></div>'
+    + '<div class="fconsent">By tapping "See my options" I am signing electronically and giving my consent to receive marketing calls and texts from Alexandre D\'Hose and his team at West Capital Lending, Inc. at the number above, including by automatic dialing system or prerecorded or artificial voice, even if my number is on a Do Not Call list. Consent is not a condition of getting a loan. Message and data rates may apply. Message frequency varies. Reply STOP to opt out, HELP for help. <a href="/privacy" target="_blank">Privacy Policy</a> · <a href="/terms" target="_blank">Terms of Use</a> · <a href="/sms-terms" target="_blank">SMS Terms</a></div>'
     + '<div class="ftrust">Your information is secure and never sold. Alexandre D\'Hose · NMLS #2705406 · West Capital Lending, Inc.</div>'
     + '</div>';
   document.getElementById('fback').onclick=fprev;
@@ -583,9 +667,9 @@ function frenderContact(s){
   if(fanswers.full_name) document.getElementById('ff_name').value=fanswers.full_name;
   if(fanswers.email) document.getElementById('ff_email').value=fanswers.email;
   if(fanswers.phone) document.getElementById('ff_phone').value=fanswers.phone;
-  if(fanswers.property_address) document.getElementById('ff_addr').value=fanswers.property_address;
+  if(fanswers.property_address && document.getElementById('ff_addr')) document.getElementById('ff_addr').value=fanswers.property_address;
 }
-function fnext(){ if(fidx<FSTEPS.length-1){ fidx++; frender(); } }
+function fnext(){ if(fidx<fsteps().length-1){ fidx++; frender(); } }
 function fprev(){ if(fidx>0){ fidx--; frender(); } }
 function fshowErr(m){ const e=document.getElementById('ferr'); e.textContent=m; e.style.display="block"; }
 
@@ -593,7 +677,8 @@ async function fsubmit(){
   const name=document.getElementById('ff_name').value.trim();
   const email=document.getElementById('ff_email').value.trim();
   const phone=document.getElementById('ff_phone').value.trim();
-  const addr=document.getElementById('ff_addr').value.trim();
+  const addrEl=document.getElementById('ff_addr');
+  const addr=addrEl ? addrEl.value.trim() : (fanswers.property_address||"");
   document.getElementById('ferr').style.display="none";
   if(!name) return fshowErr("Please enter your name.");
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fshowErr("Please enter a valid email.");
@@ -614,12 +699,19 @@ async function fsubmit(){
   const querySource = new URLSearchParams(window.location.search).get("source")?.toLowerCase();
 
   const source = sourceMap[pathSource] || sourceMap[querySource] || "Website";
-  const payload={ source:source, looking_for:fanswers.looking_for||null, loan_purpose:fanswers.loan_purpose||null,
+  const isBuy = fanswers.looking_for==="Purchase";
+  const payload={ source:source, looking_for:fanswers.looking_for||null, loan_purpose: isBuy ? "Buy a property" : (fanswers.loan_purpose||null),
     occupancy:fanswers.occupancy||null, property_type:fanswers.property_type||null,
     loan_amount:fanswers.loan_amount||null, credit_score:fanswers.credit_score||null,
     full_name:name, email:email, phone:phone, property_address:addr||null };
+  // Buyer answers go to GHL only: the site's own lead table has no columns for them.
+  const ghlPayload = Object.assign({}, payload, { marketing_consent:"Agreed on the website form" }, isBuy ? {
+    occupancy:null, property_use:fanswers.occupancy||null, under_contract:fanswers.under_contract||null,
+    purchase_price:fanswers.purchase_price||null, down_payment:fanswers.down_payment||null,
+    annual_income:fanswers.annual_income||null, income_type:fanswers.income_type||null,
+    purchase_timeline:fanswers.purchase_timeline||null } : {});
   try { if(_sb){ await _sb.from('leads').insert(payload); } } catch(e){ console.error(e); }
-  try { if(GHL_WEBHOOK_URL){ await fetch(GHL_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}); } } catch(e){ console.error(e); }
+  try { if(GHL_WEBHOOK_URL){ await fetch(GHL_WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(ghlPayload)}); } } catch(e){ console.error(e); }
   fdone();
 }
 function fdone(){
