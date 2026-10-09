@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Payoff Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --ground: #f1f4f8; --surface: #FFFFFF; --ink: #0b1c33; --ink-soft: #5a6879; --line: #cfdae8;
+    --save: #1b4fa0; --save-soft: #e6edf7; --cost: #B4533A; --cost-soft: #F6E6E0; --focus: #1b4fa0;
+    --base-line: #8c9bb0;
+    --display: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+    --body: "Inter", "Helvetica Neue", Arial, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font: 16px/1.5 var(--body); }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 20px 16px 56px; }
+  .brand { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; color: var(--ink-soft); }
+  .brand a { color: var(--save); text-decoration: none; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--save); background: var(--save-soft); border-radius: 999px; padding: 3px 10px; }
+  h1 { font: 800 clamp(28px, 7vw, 38px)/1.08 var(--display); letter-spacing: -.02em; margin: 14px 0 8px; text-wrap: balance; }
+  .lede { color: var(--ink-soft); margin: 0 0 16px; }
+  section { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin: 14px 0; }
+  h2 { font: 700 20px/1.2 var(--display); margin: 0 0 4px; }
+  .when { font-size: 13px; color: var(--ink-soft); margin: 0 0 10px; }
+
+  .modes { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 4px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { font: 600 14px var(--body); padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .modes .chip[aria-pressed="true"] { background: var(--save); border-color: var(--save); color: #fff; }
+
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+  .field { min-width: 0; }
+  .field.full { grid-column: 1 / -1; }
+  .field label, .label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-soft); margin-bottom: 3px; }
+  .input { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 9px; background: var(--ground); padding: 0 11px; }
+  .input:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .input span { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .input input { border: 0; background: transparent; color: var(--ink); font: 500 18px var(--body); padding: 10px 6px; width: 100%; min-width: 0; font-variant-numeric: tabular-nums; outline: none; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  .answer { background: var(--save-soft); border-radius: 12px; padding: 16px; margin-top: 8px; }
+  .answer .big { font: 800 clamp(40px, 12vw, 56px)/1 var(--display); color: var(--save); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .answer .big-label { font-weight: 600; margin-top: 6px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+  .stat { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .stat b { font: 700 20px var(--display); font-variant-numeric: tabular-nums; }
+  .stat small { font-size: 12px; color: var(--ink-soft); line-height: 1.3; }
+  .zero-note { color: var(--ink-soft); margin: 8px 0 0; }
+  .est { font-size: 12.5px; color: var(--ink-soft); margin: 8px 0 0; }
+
+  .block { margin-top: 18px; }
+  .split-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 14px; }
+  .split-head .label { margin: 0; }
+  .split { display: flex; height: 16px; border-radius: 6px; overflow: hidden; margin-top: 8px; }
+  .split .i { background: var(--cost); }
+  .split .p { background: var(--save); }
+  .split-legend, .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--ink-soft); margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .insight { margin: 18px 0 0; font-size: 15px; }
+  .insight b { color: var(--save); }
+  .chart svg { width: 100%; height: auto; display: block; margin-top: 6px; }
+  .chart text { fill: var(--ink-soft); font: 11px var(--body); font-variant-numeric: tabular-nums; }
+
+  .compare { border: 1px solid var(--line); border-radius: 10px; padding: 12px 13px; }
+  .compare .row { display: grid; grid-template-columns: 1fr 120px; gap: 12px; align-items: end; }
+  .compare p { margin: 10px 0 0; font-size: 14.5px; }
+  .note { background: var(--save-soft); border-radius: 10px; padding: 11px 13px; font-size: 14.5px; margin-top: 12px; }
+  .note p { margin: 0 0 8px; } .note p:last-child { margin-bottom: 0; }
+  .note ol { margin: 6px 0 0; padding-left: 20px; } .note li { margin: 4px 0; }
+  .note a { color: var(--save); font-weight: 600; }
+  .say { background: var(--surface); border-left: 3px solid var(--save); border-radius: 6px; padding: 8px 10px; margin: 8px 0 0; font-style: italic; }
+
+  .schedule { overflow-x: auto; margin-top: 12px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-soft); font-weight: 600; }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  button.btn { font: 600 15px var(--body); border-radius: 10px; padding: 12px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+  button.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+  .alex { background: var(--save); color: #fff; border-color: var(--save); }
+  .alex h2 { color: #fff; }
+  .alex p { margin: 6px 0 12px; }
+  .alex .states { font-size: 12.5px; opacity: .85; margin: 12px 0 0; }
+  a.cta { display: inline-block; font: 600 16px var(--body); background: #fff; color: var(--save); text-decoration: none; border-radius: 10px; padding: 13px 18px; }
+  footer { margin-top: 26px; font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; }
+  footer a { color: inherit; }
+  @media (max-width: 480px) {
+    .fields { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .compare .row { grid-template-columns: 1fr; }
+    table { font-size: 13px; } th, td { padding: 6px 3px; } th { font-size: 10.5px; letter-spacing: .02em; }
+  }
+  @media (prefers-reduced-motion: no-preference) { .split div { transition: width .35s ease; } }
+  @media print {
+    .screen-only, .actions, .modes, .chips { display: none !important; }
+    body { background: #fff; font-size: 12px; }
+    section { break-inside: avoid; border-color: #bbb; margin: 8px 0; padding: 10px; }
+    #answer-section, #schedule-section { break-inside: auto; }
+    .answer, .note, .block, .insight, tr { break-inside: avoid; }
+    @page { size: letter; margin: .5in; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h1 { font-size: 24px; margin: 8px 0 4px; } h2 { font-size: 15px; } .lede { margin-bottom: 6px; }
+    .input { background: #fff; } .input input { font-size: 14px; padding: 5px 6px; }
+    .fields { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .answer .big { font-size: 34px; } .stat b { font-size: 15px; }
+    .chart svg { max-width: 4in; }
+    .note { font-size: 11.5px; padding: 8px 10px; } .compare p, .insight { font-size: 11.5px; }
+    table { font-size: 11px; } th, td { padding: 3px 8px; }
+    .alex p { margin: 4px 0 8px; } a.cta { padding: 8px 12px; font-size: 13px; }
+    a.cta::after { content: "  →  financingwithalex.com"; font-weight: 500; }
+    footer { font-size: 10px; margin-top: 10px; }
+    .wrap { padding: 0; max-width: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <a href="/">← Financing with Alex</a>
+    <a href="https://www.instagram.com/financingwithalex/" target="_blank" rel="noopener">@financingwithalex</a>
+  </div>
+
+  <span class="pill" style="margin-top:16px">Free tool</span>
+  <h1 id="h1">What does paying a little extra actually do to your mortgage?</h1>
+  <p class="lede"><span id="lede">Put in your real numbers and see your own answer. No sign-up.</span> <span class="screen-only">What you type stays on this device and is never sent anywhere.</span></p>
+
+  <div class="modes screen-only" role="group" aria-label="What do you want to check?">
+    <button class="chip" type="button" data-mode="extra" aria-pressed="true">Pay extra</button>
+    <button class="chip" type="button" data-mode="recast" aria-pressed="false">Recast</button>
+    <button class="chip" type="button" data-mode="biweekly" aria-pressed="false">Biweekly</button>
+    <button class="chip" type="button" data-mode="age" aria-pressed="false">Debt-free by age</button>
+  </div>
+
+  <section aria-labelledby="loan-h">
+    <h2 id="loan-h">Your loan</h2>
+    <p class="when" id="example-note">Example numbers below. Swap in yours from your mortgage statement.</p>
+    <div class="fields">
+      <div class="field">
+        <label for="balance">What you still owe</label>
+        <div class="input"><span>$</span><input id="balance" type="text" inputmode="decimal" autocomplete="off" value="400,000" data-save></div>
+      </div>
+      <div class="field">
+        <label for="rate">Interest rate</label>
+        <div class="input"><input id="rate" type="text" inputmode="decimal" autocomplete="off" value="6.5" data-save><span>%</span></div>
+      </div>
+      <div class="field">
+        <label for="years">Years left on the loan</label>
+        <div class="input"><input id="years" type="text" inputmode="decimal" autocomplete="off" value="30" data-save><span>yrs</span></div>
+      </div>
+
+      <!-- Pay extra -->
+      <div class="field" data-for="extra" id="f-extra">
+        <label for="extra">Extra each month</label>
+        <div class="input"><span>$</span><input id="extra" type="text" inputmode="decimal" autocomplete="off" value="210" data-save></div>
+      </div>
+      <div class="field" data-for="extra" id="f-extra-year" hidden>
+        <label for="extraYear">Extra once a year</label>
+        <div class="input"><span>$</span><input id="extraYear" type="text" inputmode="decimal" autocomplete="off" value="2,528" data-save></div>
+      </div>
+      <div class="field full screen-only" data-for="extra">
+        <span class="label" id="freq-l">How often you add it</span>
+        <div class="chips" role="group" aria-labelledby="freq-l">
+          <button class="chip" type="button" data-freq="month" aria-pressed="true">Every month</button>
+          <button class="chip" type="button" data-freq="year" aria-pressed="false">Once a year</button>
+        </div>
+      </div>
+      <div class="field full screen-only" data-for="extra" id="quick-month">
+        <div class="chips" role="group" aria-label="Quick extra amounts">
+          <button class="chip" type="button" data-extra="50">$50</button>
+          <button class="chip" type="button" data-extra="100">$100</button>
+          <button class="chip" type="button" data-extra="250">$250</button>
+          <button class="chip" type="button" data-extra="500">$500</button>
+          <button class="chip" type="button" data-extra="twelfth" id="chip-twelfth">Payment ÷ 12</button>
+        </div>
+      </div>
+      <div class="field full screen-only" data-for="extra" id="quick-year" hidden>
+        <div class="chips" role="group" aria-label="Quick yearly amounts">
+          <button class="chip" type="button" data-extra-year="full" id="chip-full">One full payment</button>
+        </div>
+      </div>
+
+      <!-- Recast -->
+      <div class="field" data-for="recast" hidden>
+        <label for="lump">Lump sum toward principal</label>
+        <div class="input"><span>$</span><input id="lump" type="text" inputmode="decimal" autocomplete="off" value="50,000" data-save></div>
+      </div>
+      <div class="field" data-for="recast" hidden>
+        <label for="fee">Servicer's recast fee (optional)</label>
+        <div class="input"><span>$</span><input id="fee" type="text" inputmode="decimal" autocomplete="off" value="" placeholder="Ask your servicer" data-save></div>
+      </div>
+
+      <!-- Debt-free by age -->
+      <div class="field" data-for="age" hidden>
+        <label for="age">Your age now</label>
+        <div class="input"><input id="age" type="text" inputmode="decimal" autocomplete="off" value="40" data-save><span>yrs</span></div>
+      </div>
+      <div class="field" data-for="age" hidden>
+        <label for="targetAge">Mortgage-free by age</label>
+        <div class="input"><input id="targetAge" type="text" inputmode="decimal" autocomplete="off" value="60" data-save><span>yrs</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="answer-section" aria-labelledby="ans-h" aria-live="polite">
+    <h2 id="ans-h">Your answer</h2>
+    <div class="answer" id="answer">
+      <div class="big" id="saved">$0</div>
+      <div class="big-label" id="saved-label">less interest paid</div>
+      <div class="stats">
+        <div class="stat"><b id="sooner">0</b><small id="sooner-l">paid off sooner</small></div>
+        <div class="stat"><b id="payoff">—</b><small id="payoff-l">new payoff date</small></div>
+        <div class="stat"><b id="pi">$0</b><small id="pi-l">your current principal + interest payment</small></div>
+      </div>
+    </div>
+    <p class="zero-note" id="zero-note" hidden>Add an extra amount above to see what it saves you.</p>
+    <p class="est">These are estimates from the numbers you typed. Your servicer's figures are the ones that count.</p>
+
+    <div class="note" id="mode-note"></div>
+
+    <div class="block">
+      <div class="split-head"><span class="label">Where this month's payment goes</span><span id="split-pct"></span></div>
+      <div class="split" aria-hidden="true"><div class="i" id="bar-i"></div><div class="p" id="bar-p"></div></div>
+      <div class="split-legend">
+        <span><i class="dot" style="background:var(--cost)"></i>Interest <b id="amt-i"></b></span>
+        <span><i class="dot" style="background:var(--save)"></i>Toward your balance <b id="amt-p"></b></span>
+      </div>
+    </div>
+
+    <p class="insight" id="per-dollar"></p>
+
+    <div class="chart block">
+      <div class="legend">
+        <span><i class="dot" style="background:var(--base-line)"></i>Balance, paying as usual</span>
+        <span><i class="dot" style="background:var(--save)"></i><span id="legend-scen">With your extra payment</span></span>
+      </div>
+      <svg id="chart" viewBox="0 0 340 200" role="img" aria-label="Loan balance over time, paying as usual compared with this plan"></svg>
+    </div>
+
+    <div class="compare block" id="compare">
+      <div class="row">
+        <div>
+          <span class="label" style="color:var(--ink)">Side by side: your loan rate and a savings rate</span>
+          <span class="when" style="margin:0">The savings rate is an example. Type in the rate your own account pays.</span>
+        </div>
+        <div class="field">
+          <label for="savingsRate">Savings rate (Example)</label>
+          <div class="input"><input id="savingsRate" type="text" inputmode="decimal" autocomplete="off" value="4" data-save><span>%</span></div>
+        </div>
+      </div>
+      <p id="compare-text"></p>
+    </div>
+  </section>
+
+  <section id="schedule-section" aria-labelledby="plan-h">
+    <h2 id="plan-h">Year by year</h2>
+    <p class="when" id="schedule-lede">How much goes to interest, how much to your balance, and what you still owe at the end of each year on this plan.</p>
+    <div class="actions screen-only" style="margin-top:4px">
+      <button class="btn" type="button" id="toggle-schedule" aria-expanded="false" aria-controls="schedule">Show the year-by-year schedule</button>
+    </div>
+    <div class="schedule" id="schedule" hidden></div>
+  </section>
+
+  <section class="alex">
+    <h2>Want Alex and his team to look at your loan with you?</h2>
+    <p>This calculator is yours either way. They can go through your real numbers with you: your balance, your rate and your payoff options. Leave your details and someone from the team will reach out.</p>
+    <a class="cta" href="/?form=open&amp;utm_source=toolkit&amp;utm_medium=payoff-calculator" target="_blank" rel="noopener">Ask Alex's team to take a look</a>
+    <p class="states">No cost and no obligation. Alex D'Hose is a mortgage broker licensed in AL, AZ, CA, CT, FL, HI, ID, MD, MI, NE, ND, OH, OK, OR, PA, TN, TX, VA, WA.</p>
+  </section>
+
+  <div class="actions">
+    <button class="btn primary" type="button" onclick="window.print()">Print or save as PDF</button>
+    <button class="btn" type="button" id="reset">Start over</button>
+  </div>
+
+  <footer>
+    <p>Estimates only. This page assumes a fixed-rate loan, that you keep making your current principal and interest payment, and that every extra dollar goes to principal when you send it. Taxes, insurance and escrow are not included. How extra payments, biweekly plans and recasts are handled varies by servicer and loan type, so confirm with your servicer before you send money.</p>
+    <p>For education only. Not a loan offer or commitment to lend. Rates, payments, and terms vary by borrower and program and are subject to credit approval. Alex D'Hose, NMLS #2705406. West Capital Lending, Inc., NMLS #1566096. Equal Housing Opportunity.</p>
+    <p><a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a> · <a href="/terms" target="_blank" rel="noopener">Terms of Use</a> · <a href="/sms-terms" target="_blank" rel="noopener">SMS Terms</a></p>
+    <p><a href="/">Financing with Alex home</a> · <a href="/toolkit">All free tools</a> · More free tools from <a href="https://www.instagram.com/financingwithalex/" target="_blank" rel="noopener">@financingwithalex</a>.</p>
+  </footer>
+</div>
+
+<script>
+  /* ---------- PURE MATH (no DOM). Tested with node. ---------- */
+  //<pure>
+  function parseNum(v) {
+    const n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.\-]/g, ''));
+    return isFinite(n) ? n : 0;
+  }
+
+  function monthlyPayment(balance, r, n) {
+    return r === 0 ? balance / n : balance * r / (1 - Math.pow(1 + r, -n));
+  }
+
+  // extra: added every month. lumpFirstMonth: added once, in month 1.
+  // periodic: { every, amount } adds `amount` in every month divisible by `every`.
+  function simulate(balance, r, pay, extra, lumpFirstMonth = 0, periodic = null) {
+    let b = balance, month = 0, interest = 0, yI = 0, yP = 0;
+    const rows = [];
+    while (b > 0.005 && month < 1200) {
+      month++;
+      const i = b * r;
+      let p = pay - i + extra + (month === 1 ? lumpFirstMonth : 0);
+      if (periodic && month % periodic.every === 0) p += periodic.amount;
+      if (p > b) p = b;
+      b -= p; interest += i; yI += i; yP += p;
+      if (month % 12 === 0 || b <= 0.005) {
+        rows.push({ year: Math.ceil(month / 12), month, interest: yI, principal: yP, balance: Math.max(b, 0) });
+        yI = 0; yP = 0;
+      }
+    }
+    return { months: month, interest, rows };
+  }
+
+  function spanText(months) {
+    const y = Math.floor(months / 12), m = months % 12;
+    if (months <= 0) return '0 mo';
+    return (y ? y + ' yr' + (y > 1 ? 's' : '') : '') + (y && m ? ' ' : '') + (m ? m + ' mo' : '');
+  }
+
+  // Smallest whole-dollar monthly extra that pays the loan off within targetMonths.
+  function extraForMonths(balance, r, pay, targetMonths) {
+    const t = Math.max(Math.round(targetMonths), 1);
+    let extra = Math.max(Math.ceil(monthlyPayment(balance, r, t) - pay - 1e-9), 0);
+    let guard = 0;
+    while (simulate(balance, r, pay, extra).months > t && guard++ < 1000) extra++;
+    return extra;
+  }
+
+  // One payment split into 12, rounded down to the nearest $5 (so $2,528 gives $210).
+  function twelfth(pay) { return Math.floor(pay / 12 / 5) * 5; }
+
+  function compute(inp) {
+    const balance = Math.max(inp.balance, 0);
+    const ratePct = Math.min(Math.max(inp.ratePct, 0), 30);
+    const years = Math.min(Math.max(inp.years, 1), 40);
+    if (balance < 1000) return null;
+    const mode = ['extra', 'recast', 'biweekly', 'age'].indexOf(inp.mode) >= 0 ? inp.mode : 'extra';
+    const r = ratePct / 100 / 12, n = Math.round(years * 12);
+    const pay = monthlyPayment(balance, r, n);
+    const base = simulate(balance, r, pay, 0);
+    const out = { mode, balance, ratePct, years, r, n, pay, base, scenStart: balance, show: true };
+    let scen = base;
+
+    if (mode === 'recast') {
+      const lump = Math.min(Math.max(inp.lump || 0, 0), balance);
+      const fee = Math.max(inp.fee || 0, 0);
+      const newBal = balance - lump;
+      out.lump = lump; out.fee = fee;
+      if (lump <= 0) { out.show = false; out.why = 'nolump'; }
+      else if (newBal < 1) { out.show = false; out.why = 'paidoff'; }
+      else {
+        const newPay = monthlyPayment(newBal, r, n);
+        scen = simulate(newBal, r, newPay, 0);
+        out.scenStart = newBal; out.newPay = newPay; out.diff = pay - newPay;
+        out.feeMonths = fee > 0 && out.diff > 0 ? Math.ceil(fee / out.diff) : null;
+        out.keep = simulate(balance, r, pay, 0, lump);          // same lump sum, payment left alone
+        out.keepMonthsSaved = Math.max(base.months - out.keep.months, 0);
+        out.keepSaved = Math.max(base.interest - out.keep.interest, 0);
+      }
+    } else if (mode === 'biweekly') {
+      // 26 half-payments a year = 13 payments. 12 cover the normal payments;
+      // the 13th reaches principal as two half-payments, six months apart.
+      out.half = pay / 2;
+      scen = simulate(balance, r, pay, 0, 0, { every: 6, amount: pay / 2 });
+      out.yearly = simulate(balance, r, pay, 0, 0, { every: 12, amount: pay });
+      out.yearlyMonthsSaved = Math.max(base.months - out.yearly.months, 0);
+      out.yearlySaved = Math.max(base.interest - out.yearly.interest, 0);
+    } else if (mode === 'age') {
+      const age = inp.age || 0, target = inp.targetAge || 0;
+      out.age = age; out.targetAge = target;
+      out.baseAge = age + base.months / 12;
+      if (!(age > 0) || !(target > age)) { out.show = false; out.why = 'ages'; }
+      else {
+        const months = Math.round((target - age) * 12);
+        if (months >= base.months) { out.show = false; out.why = 'ontrack'; }
+        else {
+          out.extraNeeded = extraForMonths(balance, r, pay, months);
+          scen = simulate(balance, r, pay, out.extraNeeded);
+        }
+      }
+    } else {
+      const freq = inp.freq === 'year' ? 'year' : 'month';
+      out.freq = freq;
+      if (freq === 'year') {
+        out.extra = Math.max(inp.extraYear || 0, 0);
+        scen = simulate(balance, r, pay, 0, 0, { every: 12, amount: out.extra });
+      } else {
+        out.extra = Math.max(inp.extra || 0, 0);
+        scen = simulate(balance, r, pay, out.extra);
+      }
+      if (out.extra <= 0) { out.show = false; out.why = 'noextra'; }
+    }
+
+    out.scen = scen;
+    out.saved = Math.max(base.interest - scen.interest, 0);
+    out.monthsSaved = Math.max(base.months - scen.months, 0);
+    out.firstI = balance * r;
+    out.firstP = Math.max(pay - out.firstI, 0);
+    out.pctI = pay > 0 ? Math.round(out.firstI / pay * 100) : 0;
+    out.perDollar = (base.interest - simulate(balance, r, pay, 0, 1000).interest) / 1000;
+    return out;
+  }
+  //</pure>
+
+  /* ---------- PAGE ---------- */
+  const KEY = 'fwa-payoff-calculator-v1';
+  const MODES = ['extra', 'recast', 'biweekly', 'age'];
+  const DEFAULTS = { balance: '400,000', rate: '6.5', years: '30', extra: '210', extraYear: '2,528', lump: '50,000', fee: '', age: '40', targetAge: '60', savingsRate: '4' };
+  const HEAD = {
+    extra: ['What does paying a little extra actually do to your mortgage?', 'Put in your real numbers and see your own answer. No sign-up.'],
+    recast: ['What would a recast do to your payment?', 'A recast is when you pay a lump sum toward your balance and your servicer re-figures a lower payment. Same loan, same rate, same end date. No sign-up.'],
+    biweekly: ['What does paying every two weeks do to your mortgage?', 'Half a payment every two weeks adds up to one extra payment a year. See what that does to your loan. No sign-up.'],
+    age: ['What would it take to be mortgage-free by a certain age?', 'Type in your loan and the age you have in mind. See the extra it would take each month. No sign-up.']
+  };
+
+  const $ = id => document.getElementById(id);
+  const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+  const num = id => parseNum($(id).value);
+  const fields = [...document.querySelectorAll('[data-save]')];
+
+  let state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { state = {}; }
+  let mode = 'extra', freq = state.freq === 'year' ? 'year' : 'month', edited = !!state.edited, scheduleOpen = false;
+  try {
+    const q = new URLSearchParams(location.search).get('mode');
+    mode = MODES.indexOf(q) >= 0 ? q : (MODES.indexOf(state.mode) >= 0 ? state.mode : 'extra');
+  } catch (e) {}
+  fields.forEach(f => { if (state.v && f.id in state.v) f.value = state.v[f.id]; });
+
+  function persist() {
+    const v = {}; fields.forEach(f => v[f.id] = f.value);
+    try { localStorage.setItem(KEY, JSON.stringify({ v, mode, freq, edited })); } catch (e) {}
+  }
+
+  function payoffDate(months) {
+    const d = new Date(); d.setMonth(d.getMonth() + months);
+    return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  }
+  const ageText = a => String(Math.round(a * 10) / 10).replace(/\.0$/, '');
+
+  function setStat(id, value, label) { $(id).textContent = value; $(id + '-l').textContent = label; }
+
+  function render() {
+    // which inputs show
+    document.querySelectorAll('[data-for]').forEach(el => el.hidden = el.dataset.for !== mode);
+    if (mode === 'extra') {
+      $('f-extra').hidden = freq !== 'month'; $('quick-month').hidden = freq !== 'month';
+      $('f-extra-year').hidden = freq !== 'year'; $('quick-year').hidden = freq !== 'year';
+    }
+    document.querySelectorAll('[data-mode]').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.mode === mode)));
+    document.querySelectorAll('[data-freq]').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.freq === freq)));
+    $('h1').textContent = HEAD[mode][0];
+    $('lede').textContent = HEAD[mode][1];
+    $('example-note').hidden = edited;
+    $('compare').hidden = mode === 'recast';
+
+    const o = compute({
+      mode, freq, balance: num('balance'), ratePct: num('rate'), years: num('years'),
+      extra: num('extra'), extraYear: num('extraYear'), lump: num('lump'), fee: num('fee'),
+      age: num('age'), targetAge: num('targetAge')
+    });
+    if (!o) return;
+    const { pay, base, scen } = o;
+
+    document.querySelectorAll('[data-extra]').forEach(c => {
+      const v = c.dataset.extra === 'twelfth' ? twelfth(pay) : +c.dataset.extra;
+      c.setAttribute('aria-pressed', String(mode === 'extra' && freq === 'month' && v === o.extra));
+    });
+    $('chip-twelfth').textContent = 'Payment ÷ 12 (' + money.format(twelfth(pay)) + ')';
+    $('chip-full').textContent = 'One full payment (' + money.format(Math.round(pay)) + ')';
+    $('chip-full').setAttribute('aria-pressed', String(freq === 'year' && Math.round(pay) === o.extra));
+
+    $('answer').hidden = !o.show;
+    $('zero-note').hidden = o.show;
+    let note = '', zero = '', legend = 'With your extra payment', schedLede = '';
+
+    if (mode === 'extra') {
+      zero = 'Add an extra amount above to see what it saves you.';
+      $('saved').textContent = money.format(o.saved);
+      $('saved-label').textContent = 'less interest paid by adding ' + money.format(o.extra) + (freq === 'year' ? ' once a year' : ' a month');
+      setStat('sooner', spanText(o.monthsSaved), 'paid off sooner');
+      setStat('payoff', payoffDate(scen.months), 'new payoff date');
+      setStat('pi', money.format(pay), 'your current principal + interest payment');
+      note = '<p><strong>Before you send extra, do these three things.</strong></p><ol>' +
+        '<li>Tell your servicer the extra is for <strong>principal only</strong>. If you pay online, look for a separate field for extra principal.</li>' +
+        '<li>Check your next statement. Your balance should drop by the extra amount. If it shows up as "unapplied funds" or a future payment, call and ask them to move it to principal.</li>' +
+        '<li>Check that your loan has no prepayment penalty. It is in your loan papers, or ask your servicer.</li></ol>' +
+        '<p class="say">"I am sending ' + money.format(o.extra || 0) + ' extra with my payment. Please apply it to principal only, not to a future payment."</p>' +
+        (freq === 'year' ? '<p>The once-a-year number assumes the extra goes in every 12 months, starting a year from now. The same money split across every month does a little more, because it goes in earlier.</p>' : '');
+      schedLede = 'With your extra ' + money.format(o.extra || 0) + (freq === 'year' ? ' once a year.' : ' a month.');
+    } else if (mode === 'biweekly') {
+      legend = 'Paying every two weeks';
+      $('saved').textContent = money.format(o.saved);
+      $('saved-label').textContent = 'less interest paid with half a payment every two weeks';
+      setStat('sooner', spanText(o.monthsSaved), 'paid off sooner');
+      setStat('payoff', payoffDate(scen.months), 'new payoff date');
+      setStat('pi', money.format(o.half), 'every two weeks (half of your ' + money.format(pay) + ' payment)');
+      note = '<p><strong>How it works.</strong> There are 26 two-week periods in a year. 26 half-payments is 13 full payments, one more than the usual 12. This page assumes that extra payment reaches your principal in two halves, six months apart.</p>' +
+        '<p><strong>It only works if the extra goes to principal.</strong> The gain comes from the extra payment each year, not from paying a few days sooner. Ask your servicer if they offer a biweekly plan and how they apply the extra. If it is held as an early payment instead of going to principal, your balance does not drop any faster.</p>' +
+        '<p><strong>Watch for fees.</strong> Some biweekly programs charge a fee to set up or to process payments, including ones run by outside companies. You can get close to the same result for free: one extra payment a year, marked principal only, is about ' + spanText(o.yearlyMonthsSaved) + ' sooner and about ' + money.format(o.yearlySaved) + ' less interest on these numbers. <a href="/toolkit/payoff-calculator?mode=extra">Try it in "Pay extra."</a></p>';
+      schedLede = 'Paying half a payment every two weeks.';
+    } else if (mode === 'recast') {
+      legend = 'After the recast';
+      zero = o.why === 'paidoff' ? 'That lump sum would pay the loan off. There would be nothing left to recast.' : 'Add a lump sum above to see the new payment.';
+      if (o.show) {
+        $('saved').textContent = money.format(o.diff);
+        $('saved-label').textContent = 'lower payment each month after a ' + money.format(o.lump) + ' recast';
+        setStat('sooner', money.format(o.newPay), 'new principal + interest payment (now ' + money.format(pay) + ')');
+        setStat('payoff', money.format(o.saved), 'less interest over the ' + spanText(o.n) + ' left');
+        setStat('pi', o.feeMonths ? spanText(o.feeMonths) : '—', o.feeMonths ? 'to earn back the ' + money.format(o.fee) + ' fee' : 'to earn back the fee (add the fee above)');
+      }
+      note = '<p><strong>Ask your servicer first.</strong> A recast is something your servicer chooses to offer. Not every loan can be recast. FHA and VA loans generally can\'t be, so ask before you send a lump sum. Three questions: the fee, the smallest lump sum they accept, and whether your loan type qualifies.</p>' +
+        (o.show ? '<p><strong>Or skip the recast.</strong> Put the same ' + money.format(o.lump) + ' toward principal and keep paying ' + money.format(pay) + '. Your payment stays the same, but the loan ends about ' + spanText(o.keepMonthsSaved) + ' sooner with about ' + money.format(o.keepSaved) + ' less interest. A recast lowers the payment instead. The end date stays where it is.</p>' : '');
+      schedLede = o.show ? 'After a ' + money.format(o.lump) + ' recast, at the new payment.' : '';
+    } else {
+      legend = 'With the extra to hit your age';
+      if (o.why === 'ages') zero = 'Type your age now and the age you want to be mortgage-free by. The second one has to be higher.';
+      if (o.why === 'ontrack') zero = 'You are already on track. Paying as usual, this loan ends in ' + payoffDate(base.months) + ', when you are about ' + ageText(o.baseAge) + '. No extra needed to be done by ' + ageText(o.targetAge) + '.';
+      if (o.show) {
+        $('saved').textContent = money.format(o.extraNeeded);
+        $('saved-label').textContent = 'extra a month to be mortgage-free by age ' + ageText(o.targetAge);
+        setStat('sooner', payoffDate(scen.months), 'payoff date, ' + spanText(o.monthsSaved) + ' sooner');
+        setStat('payoff', money.format(o.saved), 'less interest paid');
+        setStat('pi', money.format(pay + o.extraNeeded), 'principal + interest each month (now ' + money.format(pay) + ')');
+      }
+      note = '<p><strong>This is arithmetic, not retirement or investment advice.</strong> It shows what it would take, not whether you should. That depends on your savings, your taxes and your income in retirement, which this page cannot see. A financial planner or tax professional can help with that part.</p>' +
+        (o.show ? '<p>Paying as usual, this loan ends in ' + payoffDate(base.months) + ', when you are about ' + ageText(o.baseAge) + '. Mark any extra "principal only" and check your statement to see that it landed there.</p>' : '');
+      schedLede = o.show ? 'With ' + money.format(o.extraNeeded) + ' extra a month.' : '';
+    }
+    $('zero-note').textContent = zero;
+    $('mode-note').innerHTML = note;
+    $('legend-scen').textContent = legend;
+    $('schedule-lede').textContent = 'How much goes to interest, how much to your balance, and what you still owe at the end of each year. ' + (schedLede || 'Paying as usual.');
+
+    $('bar-i').style.width = o.pctI + '%';
+    $('bar-p').style.width = (100 - o.pctI) + '%';
+    $('split-pct').textContent = o.pctI + '% interest';
+    $('amt-i').textContent = money.format(o.firstI);
+    $('amt-p').textContent = money.format(o.firstP);
+
+    $('per-dollar').innerHTML = 'Right now, every extra dollar you send saves you about <b>$' + o.perDollar.toFixed(2) +
+      '</b> in interest. The earlier in the loan it goes in, the more it does.';
+
+    const sr = Math.min(Math.max(num('savingsRate'), 0), 30), gap = Math.round((o.ratePct - sr) * 100) / 100;
+    $('compare-text').textContent = 'Extra principal stops interest at your loan\'s rate, ' + o.ratePct + '% a year. Money in savings at the rate you typed earns ' + sr + '% a year and stays there if you need it. Money paid into the loan is hard to get back out. ' +
+      (gap > 0 ? 'Your loan rate is ' + gap + ' percentage points higher than that savings rate.' : gap < 0 ? 'Your loan rate is ' + (-gap) + ' percentage points lower than that savings rate.' : 'The two rates are the same.') +
+      ' This compares two rates. It is not advice on where to put your money.';
+
+    drawChart(o.balance, base, o.scenStart, scen, o.show);
+    drawSchedule(scen.rows);
+  }
+
+  function niceCeil(v) {
+    const step = Math.pow(10, Math.floor(Math.log10(v))) / 2;
+    return Math.ceil(v / step) * step;
+  }
+
+  function drawChart(balance, base, scenStart, scen, showScen) {
+    const W = 340, H = 200, L = 46, R = 14, T = 12, B = 28;
+    const maxY = niceCeil(balance), maxX = base.months / 12;
+    const x = t => L + (t / maxX) * (W - L - R);
+    const y = v => T + (1 - v / maxY) * (H - T - B);
+    const pts = (s, start) => [[0, start]].concat(s.rows.map(rw => [rw.month / 12, rw.balance]))
+      .map(([a, b]) => x(a).toFixed(1) + ',' + y(b).toFixed(1)).join(' ');
+    let g = '';
+    for (let k = 0; k <= 4; k++) {
+      const v = maxY * k / 4, yy = y(v).toFixed(1);
+      g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yy + '" y2="' + yy + '" stroke="var(--line)" stroke-width="1"/>';
+      g += '<text x="' + (L - 6) + '" y="' + (+yy + 4) + '" text-anchor="end">' + (v >= 1e6 ? '$' + (v / 1e6).toFixed(1) + 'M' : '$' + Math.round(v / 1000) + 'k') + '</text>';
+    }
+    const stepX = maxX > 20 ? 5 : maxX > 8 ? 2 : 1;
+    for (let t = 0; t <= maxX + 0.001; t += stepX) {
+      g += '<text x="' + x(t).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle">' + (t === 0 ? 'Now' : 'Yr ' + t) + '</text>';
+    }
+    g += '<polyline points="' + pts(base, balance) + '" fill="none" stroke="var(--base-line)" stroke-width="2" stroke-dasharray="4 3"/>';
+    if (showScen) {
+      g += '<polyline points="' + pts(scen, scenStart) + '" fill="none" stroke="var(--save)" stroke-width="2.5"/>';
+      const ex = x(scen.months / 12), ey = y(0);
+      g += '<circle cx="' + ex.toFixed(1) + '" cy="' + ey.toFixed(1) + '" r="4" fill="var(--save)"/>';
+      // Label sits beside the dot, clear of both curves: to the right when there is room, else to the left.
+      const right = ex + 9 + 48 <= W - R;
+      g += '<text x="' + (right ? ex + 9 : ex - 16).toFixed(1) + '" y="' + (ey - 6).toFixed(1) + '" text-anchor="' + (right ? 'start' : 'end') + '" style="fill:var(--save);font-weight:600">Paid off</text>';
+    }
+    $('chart').innerHTML = g;
+  }
+
+  function drawSchedule(rows) {
+    let h = '<table><thead><tr><th>Year</th><th>To interest</th><th>To balance</th><th>Still owe</th></tr></thead><tbody>';
+    rows.forEach(rw => {
+      h += '<tr><td>' + rw.year + '</td><td>' + money.format(rw.interest) + '</td><td>' + money.format(rw.principal) + '</td><td>' + money.format(rw.balance) + '</td></tr>';
+    });
+    $('schedule').innerHTML = h + '</tbody></table>';
+  }
+
+  function setMode(m, fromClick) {
+    mode = m;
+    if (fromClick) {
+      try {
+        const u = new URL(location.href); u.searchParams.set('mode', m);
+        history.replaceState(null, '', u.pathname + u.search + u.hash);
+      } catch (e) {}
+    }
+    persist(); render();
+  }
+
+  fields.forEach(f => f.addEventListener('input', () => { edited = true; persist(); render(); }));
+  document.querySelectorAll('[data-mode]').forEach(c => c.addEventListener('click', () => setMode(c.dataset.mode, true)));
+  document.querySelectorAll('[data-freq]').forEach(c => c.addEventListener('click', () => { freq = c.dataset.freq; persist(); render(); }));
+  document.querySelectorAll('[data-extra]').forEach(c => c.addEventListener('click', () => {
+    const o = compute({ mode: 'extra', balance: num('balance'), ratePct: num('rate'), years: num('years'), extra: 1 });
+    $('extra').value = c.dataset.extra === 'twelfth' ? (o ? twelfth(o.pay) : 0) : c.dataset.extra;
+    persist(); render();
+  }));
+  $('chip-full').addEventListener('click', () => {
+    const o = compute({ mode: 'extra', balance: num('balance'), ratePct: num('rate'), years: num('years'), extra: 1 });
+    if (o) $('extraYear').value = Math.round(o.pay).toLocaleString('en-US');
+    persist(); render();
+  });
+  $('toggle-schedule').addEventListener('click', () => {
+    scheduleOpen = !scheduleOpen;
+    $('schedule').hidden = !scheduleOpen;
+    $('toggle-schedule').setAttribute('aria-expanded', String(scheduleOpen));
+    $('toggle-schedule').textContent = (scheduleOpen ? 'Hide' : 'Show') + ' the year-by-year schedule';
+  });
+  $('reset').addEventListener('click', () => {
+    if (!confirm('Clear your numbers and go back to the example?')) return;
+    fields.forEach(f => f.value = DEFAULTS[f.id]);
+    freq = 'month'; edited = false;
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>

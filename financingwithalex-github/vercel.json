@@ -47,6 +47,14 @@
     {
       "source": "/plan",
       "destination": "/toolkit/homebuyer-calculator"
+    },
+    {
+      "source": "/day7",
+      "destination": "/toolkit/payoff-calculator"
+    },
+    {
+      "source": "/payoff",
+      "destination": "/toolkit/payoff-calculator"
     }
   ]
 }
